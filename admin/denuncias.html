@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denúncias · Admin · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .brand-badge { font-size: 0.65rem; font-weight: 700; color: var(--ink-faint); background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; margin-left: 6px; text-transform: uppercase; }
+
+  /* Header de Status com contadores */
+  .report-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin: 20px 0 28px;
+  }
+  .report-stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .report-stat .label { font-size: 0.75rem; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .report-stat .count { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; }
+  .report-stat .count.danger { color: var(--alert); }
+  .report-stat .count.warning { color: var(--amber); }
+  .report-stat .count.ok { color: var(--accent); }
+
+  /* Filtros */
+  .filters-bar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin: 0 0 24px; padding: 14px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+  }
+  .search-filter { flex: 1; min-width: 200px; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.88rem; background: var(--surface-soft); font-family: var(--font-body); }
+  .search-filter:focus { border-color: var(--ink); outline: none; background: var(--surface); }
+  .filter-chip {
+    font-size: 0.78rem; padding: 7px 14px; border: 1.5px solid var(--border);
+    background: var(--surface-soft); border-radius: 100px; color: var(--ink-soft);
+    font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: var(--ink); color: var(--ink); }
+  .filter-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* Grid de Cards de Denúncia */
+  .reports-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+  }
+  .report-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 20px;
+    display: flex; flex-direction: column; gap: 12px;
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .report-card:hover { box-shadow: 0 6px 20px rgba(16, 17, 19, 0.06); transform: translateY(-1px); }
+  
+  /* Borda de gravidade */
+  .report-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  }
+  .report-card.high::before { background: var(--alert); }
+  .report-card.medium::before { background: var(--amber); }
+  .report-card.low::before { background: var(--accent); }
+
+  .report-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 10px;
+  }
+  .severity-badge {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 100px;
+  }
+  .severity-badge.high { background: var(--alert-soft); color: var(--alert-ink); }
+  .severity-badge.medium { background: var(--amber-soft); color: var(--amber); }
+  .severity-badge.low { background: var(--accent-soft); color: var(--accent-ink); }
+  .severity-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .report-id { font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; color: var(--ink); }
+  .report-time { font-size: 0.72rem; color: var(--ink-faint); }
+
+  .report-type {
+    font-size: 0.78rem; font-weight: 700; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  .report-parties {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    background: var(--surface-soft); padding: 12px; border-radius: var(--radius-sm);
+  }
+  .party-block .label { font-size: 0.7rem; color: var(--ink-faint); font-weight: 600; text-transform: uppercase; margin-bottom: 3px; }
+  .party-block .name { font-size: 0.88rem; font-weight: 600; color: var(--ink); }
+  .party-block .role { font-size: 0.72rem; color: var(--ink-soft); }
+
+  .report-reason {
+    font-size: 0.85rem; color: var(--ink); line-height: 1.5;
+    padding: 12px; background: var(--surface-soft); border-left: 3px solid var(--border);
+    border-radius: 4px;
+  }
+  .report-reason::before {
+    content: '❝ '; color: var(--ink-faint); font-size: 1.2rem; line-height: 0;
+  }
+
+  .report-actions {
+    display: flex; gap: 8px; margin-top: auto; flex-wrap: wrap;
+    padding-top: 12px; border-top: 1px solid var(--border);
+  }
+  .report-btn {
+    flex: 1; padding: 9px 12px; font-size: 0.8rem; font-weight: 600;
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+    font-family: var(--font-body);
+  }
+  .report-btn:hover { background: var(--surface-soft); }
+  .report-btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .report-btn.primary:hover { background: var(--bg-app); }
+  .report-btn.danger { background: var(--alert); color: #fff; border-color: var(--alert); }
+  .report-btn.danger:hover { background: var(--alert-ink); }
+
+  .status-badge-admin {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 100px;
+  }
+  .status-badge-admin.open { background: var(--alert-soft); color: var(--alert-ink); }
+  .status-badge-admin.resolved { background: var(--surface-soft); color: var(--ink-soft); }
+
+  /* Modal de Detalhes */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(11, 11, 13, 0.6);
+    backdrop-filter: blur(4px); z-index: 1000; display: none;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    background: var(--surface); border-radius: var(--radius-lg); max-width: 640px;
+    width: 100%; max-height: 90vh; overflow-y: auto;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+  .modal-close {
+    background: var(--surface-soft); border: none; width: 32px; height: 32px;
+    border-radius: 50%; cursor: pointer; font-size: 1rem; float: right;
+  }
+  .modal-body { padding: 24px; }
+  .modal-actions {
+    padding: 16px 24px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
+    background: var(--surface-soft);
+  }
+  .modal-actions .btn { width: auto; padding: 10px 18px; font-size: 0.85rem; }
+
+  @media (max-width: 600px) {
+    .reports-grid { grid-template-columns: 1fr; }
+    .report-parties { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand" style="margin-bottom: 8px;">OS<span>Rápida</span><span class="brand-badge">Admin</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-admin.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="disputas.html"><span class="nav-icon">⚖️</span> Disputas</a>
+      <a class="nav-item" href="usuarios.html"><span class="nav-icon">👥</span> Usuários</a>
+      <a class="nav-item" href="transacoes.html"><span class="nav-icon">💳</span> Transações</a>
+      <a class="nav-item active" href="denuncias.html"><span class="nav-icon">🚩</span> Denúncias <span style="margin-left:auto; background:var(--alert); color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:10px;">5</span></a>
+      <div style="flex:1"></div>
+      <a class="nav-item" href="../index.html" style="color: var(--alert); margin-top: auto;"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">Moderação</div>
+      <div style="color: #8B8E96; font-size: 0.75rem;">Comportamento e Segurança</div>
+      <div class="role-tag" style="margin-top: 10px;">acesso total</div>
+    </div>
+  </aside>
+
+  <main class="main-content" style="max-width: 1200px;">
+    <div class="page-topbar">
+      <div>
+        <h1>Central de Denúncias</h1>
+        <div class="sub">Analise e tome ação sobre reports de comportamento inadequado.</div>
+      </div>
+    </div>
+
+    <!-- Status com Contadores -->
+    <div class="report-stats">
+      <div class="report-stat">
+        <div class="label">Pendentes</div>
+        <div class="count danger">5</div>
+      </div>
+      <div class="report-stat">
+        <div class="label">Em análise</div>
+        <div class="count warning">2</div>
+      </div>
+      <div class="report-stat">
+        <div class="label">Resolvidas hoje</div>
+        <div class="count ok">8</div>
+      </div>
+      <div class="report-stat">
+        <div class="label">Usuários suspensos (mês)</div>
+        <div class="count">12</div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-bar">
+      <input type="text" class="search-filter" placeholder="🔍 Buscar por nome, ID ou motivo...">
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <span class="filter-chip active">Todas (7)</span>
+        <span class="filter-chip">Alta gravidade (2)</span>
+        <span class="filter-chip">Spam (1)</span>
+        <span class="filter-chip">Assédio (1)</span>
+        <span class="filter-chip">Fraude (2)</span>
+      </div>
+    </div>
+
+    <!-- Grid de Denúncias -->
+    <div class="reports-grid" id="reportsGrid"></div>
+  </main>
+</div>
+
+<!-- Modal de Ação -->
+<div class="modal-overlay" id="actionModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h2 style="font-size: 1.1rem; margin: 0;">Denúncia #RPT-2841</h2>
+      <div style="font-size: 0.8rem; color: var(--ink-soft); margin-top: 4px;">Alta gravidade · Aberta há 3 horas</div>
+    </div>
+    <div class="modal-body">
+      <div class="report-parties" style="margin-bottom: 16px;">
+        <div class="party-block">
+          <div class="label">Denunciante</div>
+          <div class="name">Maria Oliveira</div>
+          <div class="role">Cliente · 3 anos na plataforma</div>
+        </div>
+        <div class="party-block">
+          <div class="label">Denunciado</div>
+          <div class="name">Marcos Lima</div>
+          <div class="role">Prestador · 2 advertências anteriores</div>
+        </div>
+      </div>
+
+      <h3 style="font-family: var(--font-display); font-size: 0.9rem; margin: 16px 0 8px;">Histórico de conduta</h3>
+      <div style="background: var(--surface-soft); padding: 12px; border-radius: var(--radius-sm); font-size: 0.82rem; color: var(--ink-soft); line-height: 1.6;">
+        • Advertência em 12/05/2026 — Atraso não comunicado<br>
+        • Advertência em 03/07/2026 — Linguagem inadequada<br>
+        • <strong style="color: var(--ink);">Reincidência em conduta grave</strong>
+      </div>
+
+      <h3 style="font-family: var(--font-display); font-size: 0.9rem; margin: 20px 0 8px;">Descrição da denúncia</h3>
+      <div class="report-reason">
+        O prestador me enviou mensagens agressivas após eu ter aberto uma disputa. Utilizou palavras de baixo calão e ameaçou ir até a minha residência. Tenho prints das mensagens.
+      </div>
+
+      <h3 style="font-family: var(--font-display); font-size: 0.9rem; margin: 20px 0 8px;">Ação recomendada</h3>
+      <div style="background: var(--alert-soft); color: var(--alert-ink); padding: 12px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;">
+        🚨 Suspensão permanente — Reincidência em conduta grave
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-outline" onclick="takeAction('warn')">⚠ Advertir</button>
+      <button class="btn btn-dark" onclick="takeAction('suspend')">🚫 Suspender 7 dias</button>
+      <button class="btn btn-alert" onclick="takeAction('ban')">🔨 Banir permanente</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const REPORTS = [
+    {
+      id: "RPT-2841", severity: "high", severityLabel: "Alta gravidade",
+      type: "Assédio / Ameaça", reporter: "Maria Oliveira", reporterRole: "Cliente",
+      reported: "Marcos Lima", reportedRole: "Prestador",
+      reason: "Prestador enviou mensagens agressivas e ameaçou ir até a residência após cliente abrir disputa.",
+      time: "há 3 horas"
+    },
+    {
+      id: "RPT-2840", severity: "high", severityLabel: "Alta gravidade",
+      type: "Fraude", reporter: "Sistema automático", reporterRole: "Bot",
+      reported: "Reparos Express ME", reportedRole: "Empresa",
+      reason: "Detecção de múltiplas contas com mesmo CPF e padrões de proposta coordenados.",
+      time: "há 6 horas"
+    },
+    {
+      id: "RPT-2839", severity: "medium", severityLabel: "Média gravidade",
+      type: "Comportamento inadequado", reporter: "João Pedro", reporterRole: "Cliente",
+      reported: "Ana Pinturas", reportedRole: "Prestador",
+      reason: "Prestador chegou 2h atrasado sem avisar e foi rude quando questionado.",
+      time: "há 1 dia"
+    },
+    {
+      id: "RPT-2838", severity: "low", severityLabel: "Baixa gravidade",
+      type: "Spam", reporter: "Carlos Elétrica", reporterRole: "Prestador",
+      reported: "Fornecedor XYZ", reportedRole: "Empresa",
+      reason: "Enviou mensagens de propaganda não solicitada para vários prestadores.",
+      time: "há 2 dias"
+    },
+    {
+      id: "RPT-2837", severity: "medium", severityLabel: "Média gravidade",
+      type: "Informações falsas", reporter: "Sistema", reporterRole: "Bot",
+      reported: "Bruno F.", reportedRole: "Cliente",
+      reason: "Padrão suspeito de abertura de múltiplas disputas sem evidências nos últimos 30 dias.",
+      time: "há 3 dias"
+    },
+  ];
+
+  const grid = document.getElementById('reportsGrid');
+  REPORTS.forEach(r => {
+    const card = document.createElement('div');
+    card.className = `report-card ${r.severity}`;
+    card.innerHTML = `
+      <div class="report-head">
+        <div>
+          <div class="report-id">#${r.id}</div>
+          <div class="report-time">${r.time}</div>
+        </div>
+        <span class="severity-badge ${r.severity}"><span class="dot"></span>${r.severityLabel}</span>
+      </div>
+
+      <div class="report-type">${r.type}</div>
+
+      <div class="report-parties">
+        <div class="party-block">
+          <div class="label">Denunciante</div>
+          <div class="name">${r.reporter}</div>
+          <div class="role">${r.reporterRole}</div>
+        </div>
+        <div class="party-block">
+          <div class="label">Denunciado</div>
+          <div class="name">${r.reported}</div>
+          <div class="role">${r.reportedRole}</div>
+        </div>
+      </div>
+
+      <div class="report-reason">${r.reason}</div>
+
+      <div class="report-actions">
+        <button class="report-btn" onclick="archiveReport('${r.id}')">Arquivar</button>
+        <button class="report-btn primary" onclick="openModal()">Analisar →</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  function openModal() {
+    document.getElementById('actionModal').classList.add('active');
+  }
+  function closeModal() {
+    document.getElementById('actionModal').classList.remove('active');
+  }
+  function takeAction(action) {
+    const labels = { warn: 'advertência', suspend: 'suspensão de 7 dias', ban: 'banimento permanente' };
+    if (confirm(`Confirmar ${labels[action]} para este usuário?`)) {
+      alert(`✓ Ação registrada: ${labels[action]}. Usuário notificado por e-mail.`);
+      closeModal();
+    }
+  }
+  function archiveReport(id) {
+    if (confirm(`Arquivar denúncia #${id} sem ação?`)) {
+      alert(`✓ Denúncia #${id} arquivada.`);
+    }
+  }
+
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
