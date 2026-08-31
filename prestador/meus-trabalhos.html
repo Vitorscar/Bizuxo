@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Meus Trabalhos · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+
+<style>
+  /* ============================================================
+     Complementos visuais: Portfólio de Trabalhos do Prestador
+     ============================================================ */
+  
+  /* Stats do Portfólio */
+  .portfolio-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 20px 0 28px;
+  }
+  .portfolio-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.15s;
+  }
+  .portfolio-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16,17,19,0.05);
+  }
+  .portfolio-stat .label {
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+  .portfolio-stat .count {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .stat-icon.red { background: var(--alert-soft); color: var(--alert-ink); }
+  .stat-icon.green { background: var(--accent-soft); color: var(--accent-ink); }
+  .stat-icon.amber { background: var(--amber-soft); color: var(--amber); }
+
+  /* Filtros */
+  .filters-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .search-filter {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    background: var(--surface-soft);
+    font-family: var(--font-body);
+  }
+  .search-filter:focus {
+    border-color: var(--ink);
+    outline: none;
+    background: var(--surface);
+  }
+  .filter-chip {
+    font-size: 0.78rem;
+    padding: 7px 14px;
+    border: 1.5px solid var(--border);
+    background: var(--surface-soft);
+    border-radius: 100px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-chip:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .filter-chip.active {
+    background: var(--alert);
+    color: #fff;
+    border-color: var(--alert);
+  }
+
+  /* Grid de Trabalhos */
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .work-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+  .work-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(16,17,19,0.08);
+  }
+  .work-card.hidden {
+    opacity: 0.6;
+  }
+  .work-card.hidden::after {
+    content: '🔒 Oculto';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    z-index: 2;
+  }
+
+  .work-image {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: var(--surface-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--ink-faint);
+    position: relative;
+    overflow: hidden;
+  }
+  .work-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .work-content {
+    padding: 16px;
+  }
+  .work-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .work-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .work-client {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .work-rating {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: var(--amber);
+    font-weight: 700;
+  }
+
+  .work-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .work-tag {
+    font-size: 0.7rem;
+    background: var(--surface-soft);
+    color: var(--ink-soft);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .work-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .work-action-btn {
+    flex: 1;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-body);
+  }
+  .work-action-btn:hover {
+    background: var(--surface-soft);
+  }
+  .work-action-btn.danger {
+    color: var(--alert);
+  }
+  .work-action-btn.danger:hover {
+    background: var(--alert-soft);
+    border-color: var(--alert);
+  }
+
+  /* Empty State */
+  .empty-portfolio {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .empty-portfolio .icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  .empty-portfolio h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .empty-portfolio p {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    margin: 0 0 20px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ============================================================
+     Modal de Detalhes do Trabalho
+     ============================================================ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 11, 13, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.active {
+    display: flex;
+  }
+  .modal-content {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-close {
+    background: var(--surface-soft);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-close:hover {
+    background: var(--border);
+  }
+
+  .modal-body {
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  .modal-image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .gallery-item {
+    aspect-ratio: 1;
+    background: var(--surface-soft);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--ink-faint);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .gallery-item:hover {
+    transform: scale(1.05);
+  }
+
+  .modal-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .modal-info-item {
+    background: var(--surface-soft);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+  }
+  .modal-info-item .label {
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .modal-info-item .value {
+    font-size: 0.9rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .modal-review {
+    background: var(--surface-soft);
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    margin-top: 16px;
+  }
+  .modal-review-head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .modal-review-name {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--ink);
+  }
+  .modal-review-stars {
+    color: var(--amber);
+    letter-spacing: 1px;
+  }
+  .modal-review-text {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .modal-actions {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    background: var(--surface-soft);
+  }
+  .modal-actions .btn {
+    width: auto;
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+
+  /* ============================================================
+     Modal de Upload
+     ============================================================ */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 20px;
+  }
+  .upload-zone:hover {
+    border-color: var(--alert);
+    background: var(--alert-soft);
+  }
+  .upload-zone .icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+  .upload-zone h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .upload-zone p {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  .upload-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .preview-item {
+    aspect-ratio: 1;
+    background: var(--surface-soft);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    position: relative;
+  }
+  .preview-item .remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--alert);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (max-width: 768px) {
+    .works-grid { grid-template-columns: 1fr; }
+    .modal-info-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand alert" style="margin-bottom: 8px;">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-prestador.html">
+        <span class="nav-icon">▤</span> Visão Geral
+      </a>
+      <a class="nav-item" href="demandas-disponiveis.html">
+        <span class="nav-icon">🔍</span> Demandas Disponíveis
+      </a>
+      <a class="nav-item" href="minhas-propostas.html">
+        <span class="nav-icon">📨</span> Minhas Propostas
+      </a>
+      <a class="nav-item" href="ordens-servico.html">
+        <span class="nav-icon">🛠️</span> Ordens de Serviço
+      </a>
+      <a class="nav-item" href="historico-financeiro.html">
+        <span class="nav-icon">💳</span> Histórico Financeiro
+      </a>
+      <a class="nav-item active" href="meu-perfil-prestador.html">
+        <span class="nav-icon">⚙️</span> Meu Perfil Público
+      </a>
+      <a class="nav-item" href="meus-trabalhos.html">
+    <span class="nav-icon">💼</span> Meus Trabalhos
+</a>
+      <div style="flex:1"></div>
+      <a class="nav-item" href="../index.html" style="color: var(--alert); margin-top: auto;">
+        <span class="nav-icon">🚪</span> Sair
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">Olá, Carlos</div>
+      <div style="color: #8B8E96; font-size: 0.75rem; margin-bottom: 10px;">Águas Claras, DF</div>
+      <div class="role-tag">conta prestador</div>
+    </div>
+  </aside>
+
+  <!-- Conteúdo Principal -->
+  <main class="main-content" style="max-width: 1200px;">
+    <div class="page-topbar">
+      <div>
+        <h1>Meus Trabalhos</h1>
+        <div class="sub">Gerencie as fotos dos serviços que você já realizou. Estes trabalhos aparecem no seu perfil público.</div>
+      </div>
+      <button class="btn btn-alert" onclick="openUploadModal()" style="width: auto; display: inline-flex; align-items: center; gap: 6px;">
+        <span>📷</span> Adicionar trabalho
+      </button>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="portfolio-stats">
+      <div class="portfolio-stat">
+        <div>
+          <div class="label">Total de trabalhos</div>
+          <div class="count">47</div>
+        </div>
+        <div class="stat-icon red">📸</div>
+      </div>
+      <div class="portfolio-stat">
+        <div>
+          <div class="label">Visíveis no perfil</div>
+          <div class="count" style="color: var(--accent);">42</div>
+        </div>
+        <div class="stat-icon green">✓</div>
+      </div>
+      <div class="portfolio-stat">
+        <div>
+          <div class="label">Ocultos</div>
+          <div class="count" style="color: var(--ink-faint);">5</div>
+        </div>
+        <div class="stat-icon amber">🔒</div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-bar">
+      <input type="text" class="search-filter" placeholder="🔍 Buscar por título, cliente ou tipo de serviço...">
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <span class="filter-chip active">Todos (47)</span>
+        <span class="filter-chip">⚡ Elétrica (28)</span>
+        <span class="filter-chip">🔌 Instalações (12)</span>
+        <span class="filter-chip">🛠️ Manutenção (7)</span>
+      </div>
+    </div>
+
+    <!-- Grid de Trabalhos -->
+    <div class="works-grid" id="worksGrid">
+      <!-- Preenchido via JS -->
+    </div>
+  </main>
+</div>
+
+<!-- Modal de Detalhes do Trabalho -->
+<div class="modal-overlay" id="workModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 style="font-size: 1.1rem; margin: 0;" id="modalTitle">Instalação de chuveiro elétrico</h2>
+      <button class="modal-close" onclick="closeWorkModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-image-gallery">
+        <div class="gallery-item">📷</div>
+        <div class="gallery-item">📷</div>
+        <div class="gallery-item">📷</div>
+      </div>
+
+      <div class="modal-info-grid">
+        <div class="modal-info-item">
+          <div class="label">Cliente</div>
+          <div class="value">Maria Oliveira</div>
+        </div>
+        <div class="modal-info-item">
+          <div class="label">Data do serviço</div>
+          <div class="value">26/08/2026</div>
+        </div>
+        <div class="modal-info-item">
+          <div class="label">Tipo de serviço</div>
+          <div class="value">⚡ Elétrica</div>
+        </div>
+        <div class="modal-info-item">
+          <div class="label">Valor</div>
+          <div class="value">R$ 250,00</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 0.82rem; font-weight: 700; color: var(--ink); margin-bottom: 8px;">Descrição</div>
+        <div style="font-size: 0.88rem; color: var(--ink-soft); line-height: 1.5;">
+          Instalação completa de chuveiro elétrico com troca de fiação e disjuntor. Serviço realizado em 2 horas com garantia de 90 dias.
+        </div>
+      </div>
+
+      <div class="modal-review">
+        <div class="modal-review-head">
+          <span class="modal-review-name">Avaliação do cliente</span>
+          <span class="modal-review-stars">★★★★★</span>
+        </div>
+        <p class="modal-review-text">Pontual e resolveu tudo rapidinho. Deixou o local super limpo após o serviço, super recomendo!</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeWorkModal()">Fechar</button>
+      <button class="btn btn-dark" onclick="toggleVisibility()">🔒 Ocultar do perfil</button>
+      <button class="btn btn-alert" onclick="deleteWork()">🗑️ Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Upload -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header">
+      <h2 style="font-size: 1.1rem; margin: 0;">Adicionar novo trabalho</h2>
+      <button class="modal-close" onclick="closeUploadModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+        <div class="icon">📷</div>
+        <h3>Clique para enviar fotos</h3>
+        <p>ou arraste e solte aqui (máximo 10 fotos, 5MB cada)</p>
+        <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+      </div>
+
+      <div class="upload-preview" id="uploadPreview">
+        <!-- Preview das fotos selecionadas -->
+      </div>
+
+      <div class="field">
+        <label for="workTitle">Título do trabalho</label>
+        <input type="text" id="workTitle" placeholder="Ex: Instalação de chuveiro elétrico">
+      </div>
+
+      <div class="field">
+        <label for="workType">Tipo de serviço</label>
+        <select id="workType">
+          <option>⚡ Elétrica</option>
+          <option>🔌 Instalações</option>
+          <option>🛠️ Manutenção</option>
+          <option>🚿 Hidráulica</option>
+          <option>❄️ Ar-condicionado</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="workDesc">Descrição (opcional)</label>
+        <textarea id="workDesc" rows="3" placeholder="Descreva o que foi feito, materiais utilizados, tempo de serviço, etc."></textarea>
+      </div>
+
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" checked style="width: auto;">
+          <span>Tornar este trabalho visível no meu perfil público</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeUploadModal()">Cancelar</button>
+      <button class="btn btn-alert" onclick="saveWork()">Salvar trabalho</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Dados Simulados ----
+  const WORKS = [
+    {
+      id: 1,
+      title: "Instalação de chuveiro elétrico",
+      client: "Maria Oliveira",
+      date: "26/08/2026",
+      type: "⚡ Elétrica",
+      rating: 5,
+      photos: 3,
+      visible: true,
+      description: "Instalação completa de chuveiro elétrico com troca de fiação e disjuntor.",
+      review: "Pontual e resolveu tudo rapidinho. Deixou o local super limpo!"
+    },
+    {
+      id: 2,
+      title: "Troca de disjuntor e quadro elétrico",
+      client: "João Pedro",
+      date: "20/08/2026",
+      type: "⚡ Elétrica",
+      rating: 5,
+      photos: 5,
+      visible: true,
+      description: "Substituição completa do quadro de distribuição com 12 disjuntores.",
+      review: "Preço justo e explicou tudo que estava fazendo. Show!"
+    },
+    {
+      id: 3,
+      title: "Instalação de luminárias LED",
+      client: "Ana Souza",
+      date: "15/08/2026",
+      type: "🔌 Instalações",
+      rating: 4,
+      photos: 4,
+      visible: true,
+      description: "Instalação de 8 luminárias LED embutidas no teto.",
+      review: "Bom serviço, atrasou uns 20 minutos mas avisou antes."
+    },
+    {
+      id: 4,
+      title: "Reparo em tomada queimada",
+      client: "Carlos Mendes",
+      date: "10/08/2026",
+      type: "🛠️ Manutenção",
+      rating: 5,
+      photos: 2,
+      visible: true,
+      description: "Troca de tomada queimada e verificação de fiação.",
+      review: "Excelente profissional!"
+    },
+    {
+      id: 5,
+      title: "Instalação de ventilador de teto",
+      client: "Patrícia Lima",
+      date: "05/08/2026",
+      type: "🔌 Instalações",
+      rating: 5,
+      photos: 3,
+      visible: false,
+      description: "Instalação de ventilador de teto com controle remoto.",
+      review: "Muito bom!"
+    },
+    {
+      id: 6,
+      title: "Troca de resistência do chuveiro",
+      client: "Roberto Silva",
+      date: "01/08/2026",
+      type: "🛠️ Manutenção",
+      rating: 5,
+      photos: 2,
+      visible: true,
+      description: "Troca de resistência queimada em chuveiro elétrico.",
+      review: "Rápido e eficiente!"
+    },
+  ];
+
+  // ---- Renderização do Grid ----
+  const grid = document.getElementById('worksGrid');
+  
+  if (WORKS.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-portfolio" style="grid-column: 1 / -1;">
+        <div class="icon">📸</div>
+        <h3>Nenhum trabalho cadastrado</h3>
+        <p>Adicione fotos dos serviços que você já realizou para mostrar sua qualidade aos futuros clientes.</p>
+        <button class="btn btn-alert" onclick="openUploadModal()" style="width: auto; padding: 12px 24px;">
+          📷 Adicionar primeiro trabalho
+        </button>
+      </div>
+    `;
+  } else {
+    WORKS.forEach(w => {
+      const card = document.createElement('div');
+      card.className = `work-card ${w.visible ? '' : 'hidden'}`;
+      card.innerHTML = `
+        <div class="work-image">📷</div>
+        <div class="work-content">
+          <div class="work-title">${w.title}</div>
+          <div class="work-meta">
+            <div class="work-client">👤 ${w.client}</div>
+            <div class="work-rating">★ ${w.rating}</div>
+          </div>
+          <div class="work-tags">
+            <span class="work-tag">${w.type}</span>
+            <span class="work-tag">📷 ${w.photos} fotos</span>
+            <span class="work-tag">${w.date}</span>
+          </div>
+          <div class="work-actions">
+            <button class="work-action-btn" onclick="openWorkModal(${w.id})">Ver detalhes</button>
+            <button class="work-action-btn" onclick="toggleVisibility(${w.id})">${w.visible ? '🔒 Ocultar' : '👁️ Mostrar'}</button>
+            <button class="work-action-btn danger" onclick="deleteWork(${w.id})">🗑️</button>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // ---- Ações dos Modais ----
+  function openWorkModal(id) {
+    const work = WORKS.find(w => w.id === id);
+    if (work) {
+      document.getElementById('modalTitle').textContent = work.title;
+    }
+    document.getElementById('workModal').classList.add('active');
+  }
+  function closeWorkModal() {
+    document.getElementById('workModal').classList.remove('active');
+  }
+
+  function openUploadModal() {
+    document.getElementById('uploadModal').classList.add('active');
+  }
+  function closeUploadModal() {
+    document.getElementById('uploadModal').classList.remove('active');
+  }
+
+  function toggleVisibility(id) {
+    const work = WORKS.find(w => w.id === id);
+    if (work) {
+      work.visible = !work.visible;
+      const action = work.visible ? 'tornado visível' : 'ocultado';
+      alert(`✓ Trabalho ${action} no seu perfil público.`);
+      // Aqui você faria update no Supabase
+    }
+  }
+
+  function deleteWork(id) {
+    if (confirm('⚠️ Tem certeza que deseja excluir este trabalho?\n\nEsta ação não pode ser desfeita.')) {
+      alert(`✓ Trabalho excluído com sucesso.`);
+      closeWorkModal();
+      // Aqui você faria delete no Supabase
+    }
+  }
+
+  function saveWork() {
+    const title = document.getElementById('workTitle').value.trim();
+    if (!title) {
+      alert('⚠️ Preencha o título do trabalho.');
+      return;
+    }
+    
+    alert(`✓ Trabalho "${title}" adicionado com sucesso!`);
+    closeUploadModal();
+    // Aqui você faria insert no Supabase
+  }
+
+  // Preview de fotos no upload
+  document.getElementById('fileInput').addEventListener('change', function(e) {
+    const files = e.target.files;
+    const preview = document.getElementById('uploadPreview');
+    preview.innerHTML = '';
+    
+    Array.from(files).slice(0, 10).forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      item.innerHTML = `
+        📷
+        <button class="remove-btn" onclick="this.parentElement.remove()">✕</button>
+      `;
+      preview.appendChild(item);
+    });
+  });
+
+  // Filtros
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  // Fechar modais ao clicar fora
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove('active');
+      }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prestadores · Admin · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .brand-badge { font-size: 0.65rem; font-weight: 700; color: var(--ink-faint); background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; margin-left: 6px; text-transform: uppercase; }
+
+  /* Stats de Prestadores */
+  .providers-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px; margin: 20px 0 28px;
+  }
+  .provider-stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: transform 0.15s;
+  }
+  .provider-stat:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16,17,19,0.05); }
+  .provider-stat .label { font-size: 0.72rem; color: var(--ink-soft); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .provider-stat .count { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--ink); }
+  .provider-stat .trend { font-size: 0.72rem; font-weight: 600; margin-top: 4px; }
+  .trend.up { color: var(--accent); }
+  .trend.down { color: var(--alert); }
+  .stat-icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .stat-icon.green { background: var(--accent-soft); color: var(--accent-ink); }
+  .stat-icon.red { background: var(--alert-soft); color: var(--alert-ink); }
+  .stat-icon.amber { background: var(--amber-soft); color: var(--amber); }
+  .stat-icon.ink { background: var(--surface-soft); color: var(--ink); border: 1px solid var(--border); }
+
+  /* Filtros */
+  .filters-bar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 24px; padding: 14px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+  }
+  .search-filter { flex: 1; min-width: 220px; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.88rem; background: var(--surface-soft); font-family: var(--font-body); }
+  .search-filter:focus { border-color: var(--ink); outline: none; background: var(--surface); }
+  .filter-select { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; background: var(--surface); font-family: var(--font-body); cursor: pointer; }
+  .filter-select:focus { border-color: var(--ink); outline: none; }
+
+  /* Tabela de Prestadores */
+  .providers-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .provider-row {
+    display: grid; grid-template-columns: 2.5fr 1.2fr 0.8fr 0.9fr 1fr 1fr auto;
+    gap: 14px; padding: 16px 20px; align-items: center;
+    border-bottom: 1px solid var(--border); transition: background 0.1s;
+  }
+  .provider-row:last-child { border-bottom: none; }
+  .provider-row:hover { background: var(--surface-soft); }
+  .provider-head {
+    background: var(--surface-soft); font-size: 0.72rem; font-weight: 700;
+    color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 12px 20px;
+  }
+  .provider-head:hover { background: var(--surface-soft); }
+
+  /* Coluna: Prestador (Avatar + Nome) */
+  .provider-identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .provider-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--alert-soft); color: var(--alert-ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0; border: 1px solid var(--border);
+  }
+  .provider-info { min-width: 0; flex: 1; }
+  .provider-name {
+    font-family: var(--font-display); font-weight: 700; font-size: 0.9rem;
+    color: var(--ink); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .provider-meta {
+    font-size: 0.75rem; color: var(--ink-soft); display: flex; align-items: center; gap: 6px;
+  }
+  .verified-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+  .unverified-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-faint); display: inline-block; }
+
+  /* Coluna: Especialidade */
+  .specialty-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.78rem; font-weight: 600; padding: 4px 10px;
+    background: var(--surface-soft); color: var(--ink); border-radius: 100px;
+    border: 1px solid var(--border);
+  }
+
+  /* Coluna: Nota */
+  .rating-cell { display: flex; align-items: center; gap: 6px; font-size: 0.88rem; }
+  .rating-cell .star { color: var(--amber); }
+  .rating-cell .count { color: var(--ink-faint); font-size: 0.75rem; }
+
+  /* Coluna: Serviços */
+  .services-cell { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--ink); }
+
+  /* Coluna: Status */
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 100px;
+  }
+  .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-pill.active { background: var(--accent-soft); color: var(--accent-ink); }
+  .status-pill.active .dot { background: var(--accent); }
+  .status-pill.pending { background: var(--amber-soft); color: var(--amber); }
+  .status-pill.pending .dot { background: var(--amber); animation: pulse 2s infinite; }
+  .status-pill.suspended { background: var(--alert-soft); color: var(--alert-ink); }
+  .status-pill.suspended .dot { background: var(--alert); }
+  .status-pill.inactive { background: var(--surface-soft); color: var(--ink-soft); }
+  .status-pill.inactive .dot { background: var(--ink-faint); }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Coluna: Ações */
+  .action-menu-btn {
+    background: var(--surface-soft); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 10px; font-size: 0.82rem; cursor: pointer; font-weight: 600; color: var(--ink);
+    transition: all 0.15s;
+  }
+  .action-menu-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* Paginação */
+  .pagination {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; background: var(--surface); border: 1px solid var(--border);
+    border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md);
+    font-size: 0.82rem; color: var(--ink-soft);
+  }
+  .pagination-controls { display: flex; gap: 6px; }
+  .page-btn {
+    width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); cursor: pointer; font-size: 0.82rem; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .page-btn:hover { background: var(--surface-soft); }
+  .page-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* ============================================================
+     Modal de Detalhes do Prestador
+     ============================================================ */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(11, 11, 13, 0.6);
+    backdrop-filter: blur(4px); z-index: 1000; display: none;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    background: var(--surface); border-radius: var(--radius-lg); max-width: 900px;
+    width: 100%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .modal-header {
+    padding: 24px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  }
+  .modal-close {
+    background: var(--surface-soft); border: none; width: 32px; height: 32px;
+    border-radius: 50%; cursor: pointer; font-size: 1rem; color: var(--ink);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .modal-close:hover { background: var(--border); }
+
+  .modal-provider-head { display: flex; align-items: center; gap: 16px; flex: 1; }
+  .modal-avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--alert-soft); color: var(--alert-ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; flex-shrink: 0; border: 2px solid var(--surface);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .modal-provider-info h2 { font-size: 1.15rem; margin: 0 0 4px; }
+  .modal-provider-info .sub { font-size: 0.82rem; color: var(--ink-soft); }
+
+  .modal-body {
+    padding: 24px; overflow-y: auto; display: grid;
+    grid-template-columns: 1fr 1fr; gap: 24px;
+  }
+  .modal-section { margin-bottom: 8px; }
+  .modal-section h3 {
+    font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+    margin: 0 0 12px; color: var(--ink); display: flex; align-items: center; gap: 6px;
+  }
+
+  /* Info grid dentro do modal */
+  .info-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    background: var(--surface-soft); padding: 14px; border-radius: var(--radius-sm);
+  }
+  .info-item .label { font-size: 0.7rem; color: var(--ink-faint); font-weight: 700; text-transform: uppercase; margin-bottom: 3px; letter-spacing: 0.04em; }
+  .info-item .value { font-size: 0.88rem; color: var(--ink); font-weight: 600; }
+
+  /* Métricas de desempenho */
+  .perf-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: var(--border); border-radius: var(--radius-sm); overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .perf-item { background: var(--surface); padding: 14px 8px; text-align: center; }
+  .perf-item b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: var(--ink); margin-bottom: 3px; }
+  .perf-item span { font-size: 0.68rem; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+
+  /* Timeline de eventos */
+  .event-timeline { border-left: 2px solid var(--border); padding-left: 16px; position: relative; }
+  .event-item { margin-bottom: 14px; position: relative; }
+  .event-item::before {
+    content: ''; position: absolute; left: -21px; top: 4px;
+    width: 10px; height: 10px; border-radius: 50%; background: var(--border);
+  }
+  .event-item.good::before { background: var(--accent); }
+  .event-item.bad::before { background: var(--alert); }
+  .event-item.neutral::before { background: var(--amber); }
+  .event-time { font-size: 0.7rem; color: var(--ink-faint); font-weight: 600; margin-bottom: 2px; }
+  .event-desc { font-size: 0.82rem; color: var(--ink); line-height: 1.4; }
+
+  /* Reviews no modal */
+  .review-mini {
+    background: var(--surface-soft); border-radius: var(--radius-sm);
+    padding: 12px; margin-bottom: 8px;
+  }
+  .review-mini:last-child { margin-bottom: 0; }
+  .review-mini-head { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.8rem; }
+  .review-mini-name { font-weight: 700; color: var(--ink); }
+  .review-mini-stars { color: var(--amber); letter-spacing: 1px; }
+  .review-mini-text { font-size: 0.8rem; color: var(--ink-soft); line-height: 1.4; margin: 0; }
+
+  /* Modal Actions */
+  .modal-actions {
+    padding: 16px 24px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
+    background: var(--surface-soft);
+  }
+  .modal-actions .btn { width: auto; padding: 10px 18px; font-size: 0.85rem; }
+
+  @media (max-width: 900px) {
+    .provider-row { grid-template-columns: 1fr; gap: 8px; }
+    .provider-head { display: none; }
+    .modal-body { grid-template-columns: 1fr; }
+    .info-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand" style="margin-bottom: 8px;">OS<span>Rápida</span><span class="brand-badge">Admin</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-admin.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="disputas.html"><span class="nav-icon">⚖️</span> Disputas</a>
+      <a class="nav-item" href="usuarios.html"><span class="nav-icon">👥</span> usuários</a>  
+      <a class="nav-item active" href="prestadores.html"><span class="nav-icon">🛠️</span> Prestadores</a>       
+      <a class="nav-item" href="financeiro.html"><span class="nav-icon">💳</span> Transações</a>
+      <a class="nav-item" href="denuncias.html"><span class="nav-icon">🚩</span> Denúncias</a>
+      <div style="flex:1"></div>
+      <a class="nav-item" href="../index.html" style="color: var(--alert); margin-top: auto;"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">Gestão de Profissionais</div>
+      <div style="color: #8B8E96; font-size: 0.75rem;">Cadastros e Qualidade</div>
+      <div class="role-tag" style="margin-top: 10px;">acesso total</div>
+    </div>
+  </aside>
+
+  <main class="main-content" style="max-width: 1300px;">
+    <div class="page-topbar">
+      <div>
+        <h1>Prestadores de Serviço</h1>
+        <div class="sub">Gerencie cadastros, verifique documentos e monitore a qualidade dos profissionais.</div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-outline" style="width:auto; padding:10px 16px; font-size:0.85rem;">📥 Exportar</button>
+        <button class="btn btn-alert" style="width:auto; padding:10px 16px; font-size:0.85rem;">＋ Convidar prestador</button>
+      </div>
+    </div>
+
+    <!-- Métricas -->
+    <div class="providers-stats">
+      <div class="provider-stat">
+        <div>
+          <div class="label">Total de prestadores</div>
+          <div class="count">342</div>
+          <div class="trend up">↑ 18 novos este mês</div>
+        </div>
+        <div class="stat-icon ink">👥</div>
+      </div>
+      <div class="provider-stat">
+        <div>
+          <div class="label">Ativos (30 dias)</div>
+          <div class="count" style="color: var(--accent);">287</div>
+          <div class="trend up">84% da base</div>
+        </div>
+        <div class="stat-icon green">✓</div>
+      </div>
+      <div class="provider-stat">
+        <div>
+          <div class="label">Aguardando verificação</div>
+          <div class="count" style="color: var(--amber);">12</div>
+          <div class="trend down">Requer atenção</div>
+        </div>
+        <div class="stat-icon amber">⏳</div>
+      </div>
+      <div class="provider-stat">
+        <div>
+          <div class="label">Suspensos</div>
+          <div class="count" style="color: var(--alert);">8</div>
+          <div class="trend down">↓ 2 vs mês anterior</div>
+        </div>
+        <div class="stat-icon red">🚫</div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-bar">
+      <input type="text" class="search-filter" placeholder="🔍 Buscar por nome, CPF, cidade ou especialidade...">
+      <select class="filter-select">
+        <option>Todas especialidades</option>
+        <option>⚡ Elétrica</option>
+        <option>🚿 Hidráulica</option>
+        <option>❄️ Ar-condicionado</option>
+        <option>🎨 Pintura</option>
+        <option>🛠️ Manutenção geral</option>
+      </select>
+      <select class="filter-select">
+        <option>Todos os status</option>
+        <option>Ativos</option>
+        <option>Aguardando verificação</option>
+        <option>Suspensos</option>
+        <option>Inativos</option>
+      </select>
+      <select class="filter-select">
+        <option>Todas as cidades</option>
+        <option>Águas Claras</option>
+        <option>Taguatinga</option>
+        <option>Plano Piloto</option>
+        <option>Samambaia</option>
+      </select>
+    </div>
+
+    <!-- Tabela -->
+    <div class="providers-table">
+      <div class="provider-row provider-head">
+        <div>Prestador</div>
+        <div>Especialidade</div>
+        <div>Nota</div>
+        <div>Serviços</div>
+        <div>Cidade</div>
+        <div>Status</div>
+        <div></div>
+      </div>
+      <div id="providersTable"></div>
+    </div>
+
+    <div class="pagination">
+      <div>Mostrando 1-10 de 342 prestadores</div>
+      <div class="pagination-controls">
+        <button class="page-btn">‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">...</button>
+        <button class="page-btn">35</button>
+        <button class="page-btn">›</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal de Detalhes do Prestador -->
+<div class="modal-overlay" id="providerModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-provider-head">
+        <div class="modal-avatar">👨‍🔧</div>
+        <div class="modal-provider-info">
+          <h2 id="modalName">Carlos Elétrica</h2>
+          <div class="sub">
+            <span class="verified-dot" title="Identidade verificada"></span>
+            Identidade verificada · Cadastro em 15/03/2023
+          </div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Coluna Esquerda -->
+      <div>
+        <div class="modal-section">
+          <h3>📋 Dados cadastrais</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="label">Nome completo</div>
+              <div class="value">Carlos Silva Santos</div>
+            </div>
+            <div class="info-item">
+              <div class="label">CPF</div>
+              <div class="value">***.***.***-42</div>
+            </div>
+            <div class="info-item">
+              <div class="label">WhatsApp</div>
+              <div class="value">(61) 98888-7777</div>
+            </div>
+            <div class="info-item">
+              <div class="label">E-mail</div>
+              <div class="value">carlos@email.com</div>
+            </div>
+            <div class="info-item">
+              <div class="label">Cidade base</div>
+              <div class="value">Brasília - DF</div>
+            </div>
+            <div class="info-item">
+              <div class="label">Regiões atendidas</div>
+              <div class="value">Águas Claras, Taguatinga, Centro</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section" style="margin-top: 20px;">
+          <h3>🛠️ Especialidades declaradas</h3>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <span class="specialty-pill">⚡ Elétrica</span>
+            <span class="specialty-pill">🔌 Instalações</span>
+            <span class="specialty-pill">🛠️ Manutenção</span>
+          </div>
+        </div>
+
+        <div class="modal-section" style="margin-top: 20px;">
+          <h3>📝 Bio profissional</h3>
+          <div style="background: var(--surface-soft); padding: 12px; border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--ink-soft); line-height: 1.5;">
+            Eletricista profissional com 8 anos de experiência. Ofereço atendimento rápido, transparente e com garantia de 90 dias em todos os serviços realizados. Especialista em instalações residenciais e pequenos reparos emergenciais.
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna Direita -->
+      <div>
+        <div class="modal-section">
+          <h3>📊 Desempenho na plataforma</h3>
+          <div class="perf-grid">
+            <div class="perf-item">
+              <b style="color: var(--amber);">★ 4,9</b>
+              <span>Nota média</span>
+            </div>
+            <div class="perf-item">
+              <b>127</b>
+              <span>Serviços</span>
+            </div>
+            <div class="perf-item">
+              <b>98%</b>
+              <span>Aceitação</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section" style="margin-top: 20px;">
+          <h3>⭐ Avaliações recentes</h3>
+          <div class="review-mini">
+            <div class="review-mini-head">
+              <span class="review-mini-name">Maria Oliveira</span>
+              <span class="review-mini-stars">★★★★★</span>
+            </div>
+            <p class="review-mini-text">Pontual e resolveu tudo rapidinho. Deixou o local super limpo!</p>
+          </div>
+          <div class="review-mini">
+            <div class="review-mini-head">
+              <span class="review-mini-name">João Pedro</span>
+              <span class="review-mini-stars">★★★★★</span>
+            </div>
+            <p class="review-mini-text">Preço justo e explicou tudo que estava fazendo. Show.</p>
+          </div>
+        </div>
+
+        <div class="modal-section" style="margin-top: 20px;">
+          <h3>⏱️ Histórico de eventos</h3>
+          <div class="event-timeline">
+            <div class="event-item good">
+              <div class="event-time">Hoje, 09:15</div>
+              <div class="event-desc">Iniciou serviço OS #1088 (Instalação elétrica)</div>
+            </div>
+            <div class="event-item good">
+              <div class="event-time">28/08, 18:40</div>
+              <div class="event-desc">Concluiu serviço OS #1085 — Avaliado com 5★</div>
+            </div>
+            <div class="event-item neutral">
+              <div class="event-time">15/08, 14:20</div>
+              <div class="event-desc">Recebeu advertência por atraso não comunicado</div>
+            </div>
+            <div class="event-item good">
+              <div class="event-time">10/08, 11:00</div>
+              <div class="event-desc">Concluiu serviço OS #1072 — Avaliado com 5★</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Fechar</button>
+      <button class="btn btn-outline" onclick="contactProvider()">💬 Contactar</button>
+      <button class="btn btn-dark" onclick="suspendProvider()">🚫 Suspender</button>
+      <button class="btn btn-alert" onclick="banProvider()">🔨 Banir permanentemente</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Dados Simulados ----
+  const PROVIDERS = [
+    { id: 1, name: "Carlos Elétrica", avatar: "👨‍🔧", specialty: "⚡ Elétrica", rating: 4.9, reviews: 127, services: 142, city: "Águas Claras", status: "active", statusLabel: "Ativo", verified: true, joined: "Mar/2023" },
+    { id: 2, name: "Marcos Lima", avatar: "🔧", specialty: "❄️ Ar-condicionado", rating: 4.7, reviews: 89, services: 95, city: "Taguatinga", status: "active", statusLabel: "Ativo", verified: true, joined: "Jun/2023" },
+    { id: 3, name: "João Reparos", avatar: "🛠️", specialty: "🛠️ Manutenção", rating: 4.3, reviews: 54, services: 61, city: "Samambaia", status: "pending", statusLabel: "Verificação", verified: false, joined: "Ago/2026" },
+    { id: 4, name: "Pinturas Rocha", avatar: "🎨", specialty: "🎨 Pintura", rating: 4.8, reviews: 203, services: 215, city: "Plano Piloto", status: "active", statusLabel: "Ativo", verified: true, joined: "Jan/2023" },
+    { id: 5, name: "Hidráulica Premium", avatar: "🚿", specialty: "🚿 Hidráulica", rating: 4.6, reviews: 78, services: 82, city: "Águas Claras", status: "active", statusLabel: "Ativo", verified: true, joined: "Mai/2023" },
+    { id: 6, name: "Reparos Express ME", avatar: "⚠️", specialty: "🛠️ Geral", rating: 2.1, reviews: 12, services: 15, city: "Ceilândia", status: "suspended", statusLabel: "Suspenso", verified: true, joined: "Fev/2024" },
+    { id: 7, name: "Ana Pinturas", avatar: "🎨", specialty: "🎨 Pintura", rating: 4.5, reviews: 42, services: 48, city: "Taguatinga", status: "active", statusLabel: "Ativo", verified: true, joined: "Set/2023" },
+    { id: 8, name: "Bruno Eletricista", avatar: "⚡", specialty: "⚡ Elétrica", rating: 0, reviews: 0, services: 0, city: "Samambaia", status: "pending", statusLabel: "Verificação", verified: false, joined: "Ago/2026" },
+    { id: 9, name: "Frio Soluções", avatar: "❄️", specialty: "❄️ Ar-condicionado", rating: 4.4, reviews: 67, services: 71, city: "Plano Piloto", status: "inactive", statusLabel: "Inativo", verified: true, joined: "Abr/2023" },
+    { id: 10, name: "Marcenaria F.", avatar: "🪵", specialty: "🪵 Montagem", rating: 4.9, reviews: 156, services: 168, city: "Águas Claras", status: "active", statusLabel: "Ativo", verified: true, joined: "Dez/2022" },
+  ];
+
+  // ---- Renderização da Tabela ----
+  const table = document.getElementById('providersTable');
+  PROVIDERS.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'provider-row';
+    row.innerHTML = `
+      <div class="provider-identity">
+        <div class="provider-avatar">${p.avatar}</div>
+        <div class="provider-info">
+          <div class="provider-name">
+            ${p.name}
+            ${p.verified ? '<span class="verified-dot" title="Verificado" style="margin-left: 6px;"></span>' : '<span class="unverified-dot" title="Não verificado" style="margin-left: 6px;"></span>'}
+          </div>
+          <div class="provider-meta">
+            ${p.verified ? 'Verificado' : 'Pendente'} · Desde ${p.joined}
+          </div>
+        </div>
+      </div>
+      <div><span class="specialty-pill">${p.specialty}</span></div>
+      <div class="rating-cell">
+        ${p.rating > 0 ? `<span class="star">★</span> ${p.rating.toFixed(1)} <span class="count">(${p.reviews})</span>` : '<span style="color: var(--ink-faint); font-size: 0.8rem;">—</span>'}
+      </div>
+      <div class="services-cell">${p.services}</div>
+      <div style="font-size: 0.85rem; color: var(--ink);">${p.city}</div>
+      <div><span class="status-pill ${p.status}"><span class="dot"></span>${p.statusLabel}</span></div>
+      <button class="action-menu-btn" onclick="openModal(${p.id})">Analisar →</button>
+    `;
+    table.appendChild(row);
+  });
+
+  // ---- Ações do Modal ----
+  function openModal(id) {
+    const provider = PROVIDERS.find(p => p.id === id);
+    if (provider) {
+      document.getElementById('modalName').textContent = provider.name;
+    }
+    document.getElementById('providerModal').classList.add('active');
+  }
+  function closeModal() {
+    document.getElementById('providerModal').classList.remove('active');
+  }
+  function contactProvider() {
+    alert('💬 Abrindo chat interno com o prestador...');
+  }
+  function suspendProvider() {
+    if (confirm('Suspender este prestador por 7 dias? Ele não poderá receber novas propostas durante o período.')) {
+      alert('✓ Prestador suspenso por 7 dias. Notificação enviada por e-mail.');
+      closeModal();
+    }
+  }
+  function banProvider() {
+    if (confirm('⚠️ ATENÇÃO: Banir permanentemente este prestador?\n\nEsta ação é irreversível. Todos os serviços em andamento serão cancelados e os clientes reembolsados.')) {
+      if (confirm('Tem certeza absoluta? Digite mentalmente "SIM" para confirmar.')) {
+        alert('✓ Prestador banido permanentemente. Casos ativos transferidos para mediação.');
+        closeModal();
+      }
+    }
+  }
+
+  // Fechar modal ao clicar fora
+  document.getElementById('providerModal').addEventListener('click', (e) => {
+    if (e.target.id === 'providerModal') closeModal();
+  });
+</script>
+</body>
+</html>

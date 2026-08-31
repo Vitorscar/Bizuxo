@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transações · Admin · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .brand-badge { font-size: 0.65rem; font-weight: 700; color: var(--ink-faint); background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; margin-left: 6px; text-transform: uppercase; }
+
+  /* Cards de Totais Financeiros */
+  .finance-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px; margin: 20px 0 28px;
+  }
+  .finance-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 20px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .finance-card .label {
+    font-size: 0.75rem; font-weight: 700; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+  }
+  .finance-card .value {
+    font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; color: var(--ink);
+  }
+  .finance-card .trend {
+    font-size: 0.75rem; font-weight: 700; margin-top: 4px;
+  }
+  .trend.up { color: var(--accent); }
+  .trend.down { color: var(--alert); }
+  .finance-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+  .finance-icon.green { background: var(--accent-soft); color: var(--accent-ink); }
+  .finance-icon.red { background: var(--alert-soft); color: var(--alert-ink); }
+  .finance-icon.amber { background: var(--amber-soft); color: var(--amber); }
+  .finance-icon.ink { background: var(--surface-soft); color: var(--ink); border: 1px solid var(--border); }
+
+  /* Filtros */
+  .filters-bar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin: 20px 0 24px; padding: 14px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+  }
+  .search-filter { flex: 1; min-width: 200px; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.88rem; background: var(--surface-soft); font-family: var(--font-body); }
+  .search-filter:focus { border-color: var(--ink); outline: none; background: var(--surface); }
+  .filter-select { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; background: var(--surface); font-family: var(--font-body); cursor: pointer; }
+
+  /* Tabela de Transações */
+  .tx-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .tx-row {
+    display: grid; grid-template-columns: auto 1fr 1fr 1fr 1fr 1fr auto;
+    gap: 12px; padding: 14px 20px; align-items: center;
+    border-bottom: 1px solid var(--border); font-size: 0.85rem;
+    transition: background 0.1s;
+  }
+  .tx-row:hover { background: var(--surface-soft); }
+  .tx-row:last-child { border-bottom: none; }
+  .tx-head {
+    background: var(--surface-soft); font-size: 0.72rem; font-weight: 700;
+    color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 12px 20px;
+  }
+  .tx-head:hover { background: var(--surface-soft); }
+
+  .tx-id { font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; color: var(--ink); }
+  .tx-type {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 100px;
+  }
+  .tx-type.payment { background: var(--accent-soft); color: var(--accent-ink); }
+  .tx-type.commission { background: var(--surface-soft); color: var(--ink); border: 1px solid var(--border); }
+  .tx-type.refund { background: var(--alert-soft); color: var(--alert-ink); }
+  .tx-type.withheld { background: var(--amber-soft); color: var(--amber); }
+
+  .tx-party { font-size: 0.82rem; color: var(--ink); }
+  .tx-party small { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-top: 2px; }
+
+  .tx-amount { font-family: var(--font-display); font-weight: 700; }
+  .tx-amount.positive { color: var(--accent); }
+  .tx-amount.negative { color: var(--alert); }
+
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 100px;
+  }
+  .status-pill.paid { background: var(--accent-soft); color: var(--accent-ink); }
+  .status-pill.pending { background: var(--amber-soft); color: var(--amber); }
+  .status-pill.refunded { background: var(--alert-soft); color: var(--alert-ink); }
+
+  .tx-action {
+    background: none; border: none; color: var(--ink-soft); cursor: pointer;
+    font-size: 0.82rem; font-weight: 600; transition: color 0.15s;
+  }
+  .tx-action:hover { color: var(--ink); }
+
+  .pagination {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; background: var(--surface); border: 1px solid var(--border);
+    border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md);
+    font-size: 0.82rem; color: var(--ink-soft);
+  }
+  .pagination-controls { display: flex; gap: 6px; }
+  .page-btn {
+    width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); cursor: pointer; font-size: 0.82rem; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .page-btn:hover { background: var(--surface-soft); }
+  .page-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .tx-row { grid-template-columns: 1fr; gap: 8px; }
+    .tx-head { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand" style="margin-bottom: 8px;">OS<span>Rápida</span><span class="brand-badge">Admin</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-admin.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="disputas.html"><span class="nav-icon">⚖️</span> Disputas</a>
+      <a class="nav-item" href="usuarios.html"><span class="nav-icon">👥</span> Usuários</a>
+      <a class="nav-item active" href="prestadores.html"><span class="nav-icon">🛠️</span> Prestadores</a>       
+      <a class="nav-item active" href="financeiro.html"><span class="nav-icon">💳</span> Transações</a>
+      <a class="nav-item" href="denuncias.html"><span class="nav-icon">🚩</span> Denúncias</a>
+      <div style="flex:1"></div>
+      <a class="nav-item" href="../index.html" style="color: var(--alert); margin-top: auto;"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">Equipe Financeira</div>
+      <div style="color: #8B8E96; font-size: 0.75rem;">Tesouraria e Conciliação</div>
+      <div class="role-tag" style="margin-top: 10px;">acesso total</div>
+    </div>
+  </aside>
+
+  <main class="main-content" style="max-width: 1200px;">
+    <div class="page-topbar">
+      <div>
+        <h1>Transações Financeiras</h1>
+        <div class="sub">Histórico completo de pagamentos, comissões e estornos.</div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-outline" style="width:auto; padding:10px 16px; font-size:0.85rem;">📅 Agosto 2026</button>
+        <button class="btn btn-dark" style="width:auto; padding:10px 16px; font-size:0.85rem;">📥 Exportar</button>
+      </div>
+    </div>
+
+    <!-- Totais Financeiros -->
+    <div class="finance-grid">
+      <div class="finance-card">
+        <div>
+          <div class="label">Volume bruto</div>
+          <div class="value">R$ 124.580</div>
+          <div class="trend up">↑ 12% vs mês anterior</div>
+        </div>
+        <div class="finance-icon green">💰</div>
+      </div>
+      <div class="finance-card">
+        <div>
+          <div class="label">Comissão recebida</div>
+          <div class="value">R$ 12.458</div>
+          <div class="trend up">↑ 8% vs mês anterior</div>
+        </div>
+        <div class="finance-icon ink">📊</div>
+      </div>
+      <div class="finance-card">
+        <div>
+          <div class="label">Estornos</div>
+          <div class="value">R$ 2.340</div>
+          <div class="trend down">↓ 3% vs mês anterior</div>
+        </div>
+        <div class="finance-icon red">↩</div>
+      </div>
+      <div class="finance-card">
+        <div>
+          <div class="label">Retido em disputas</div>
+          <div class="value">R$ 1.890</div>
+          <div class="trend down">3 casos ativos</div>
+        </div>
+        <div class="finance-icon amber">⏸️</div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-bar">
+      <input type="text" class="search-filter" placeholder="🔍 Buscar por ID, nome do cliente ou prestador...">
+      <select class="filter-select">
+        <option>Todos os tipos</option>
+        <option>Pagamentos</option>
+        <option>Comissões</option>
+        <option>Estornos</option>
+        <option>Retidos</option>
+      </select>
+      <select class="filter-select">
+        <option>Todos os status</option>
+        <option>Pagos</option>
+        <option>Pendentes</option>
+        <option>Estornados</option>
+      </select>
+    </div>
+
+    <!-- Tabela -->
+    <div class="tx-table">
+      <div class="tx-row tx-head">
+        <div>ID</div>
+        <div>Tipo</div>
+        <div>Cliente</div>
+        <div>Prestador</div>
+        <div>Valor</div>
+        <div>Status</div>
+        <div></div>
+      </div>
+      <div id="txTable"></div>
+    </div>
+
+    <div class="pagination">
+      <div>Mostrando 1-10 de 247 transações</div>
+      <div class="pagination-controls">
+        <button class="page-btn">‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">...</button>
+        <button class="page-btn">25</button>
+        <button class="page-btn">›</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const TRANSACTIONS = [
+    { id: "TX-8271", type: "payment", typeLabel: "Pagamento", client: "Maria Oliveira", clientOs: "OS #1088", provider: "Carlos Elétrica", amount: "R$ 250,00", status: "paid", statusLabel: "Pago", date: "31/08" },
+    { id: "TX-8270", type: "commission", typeLabel: "Comissão", client: "—", clientOs: "Taxa 10%", provider: "Plataforma", amount: "R$ 25,00", status: "paid", statusLabel: "Recebido", date: "31/08" },
+    { id: "TX-8269", type: "refund", typeLabel: "Estorno", client: "Bruno F.", clientOs: "OS #1039", provider: "João Reparos", amount: "-R$ 90,00", status: "refunded", statusLabel: "Estornado", date: "30/08" },
+    { id: "TX-8268", type: "withheld", typeLabel: "Retido", client: "Renata A.", clientOs: "OS #1042 (disputa)", provider: "Marcos Lima", amount: "R$ 380,00", status: "pending", statusLabel: "Em disputa", date: "30/08" },
+    { id: "TX-8267", type: "payment", typeLabel: "Pagamento", client: "Ana Souza", clientOs: "OS #1085", provider: "Hidráulica P.", amount: "R$ 180,00", status: "paid", statusLabel: "Pago", date: "30/08" },
+    { id: "TX-8266", type: "commission", typeLabel: "Comissão", client: "—", clientOs: "Taxa 10%", provider: "Plataforma", amount: "R$ 18,00", status: "paid", statusLabel: "Recebido", date: "30/08" },
+    { id: "TX-8265", type: "payment", typeLabel: "Pagamento", client: "Paulo M.", clientOs: "OS #1082", provider: "Pinturas R.", amount: "R$ 420,00", status: "paid", statusLabel: "Pago", date: "29/08" },
+  ];
+
+  const table = document.getElementById('txTable');
+  TRANSACTIONS.forEach(t => {
+    const amountClass = t.amount.startsWith('-') ? 'negative' : (t.type === 'commission' ? 'positive' : '');
+    const row = document.createElement('div');
+    row.className = 'tx-row';
+    row.innerHTML = `
+      <div class="tx-id">${t.id}</div>
+      <div><span class="tx-type ${t.type}">${t.typeLabel}</span></div>
+      <div class="tx-party">${t.client}<small>${t.clientOs}</small></div>
+      <div class="tx-party">${t.provider}</div>
+      <div class="tx-amount ${amountClass}">${t.amount}</div>
+      <div><span class="status-pill ${t.status}">${t.statusLabel}</span></div>
+      <button class="tx-action">Ver →</button>
+    `;
+    table.appendChild(row);
+  });
+</script>
+</body>
+</html>

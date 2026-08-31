@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disputa #4471 · Admin · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .brand-badge { font-size: 0.65rem; font-weight: 700; color: var(--ink-faint); background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; margin-left: 6px; text-transform: uppercase; }
+
+  /* Header da Disputa */
+  .dispute-header {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px;
+  }
+  .dispute-header-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+  }
+  .dispute-id-block h1 {
+    font-family: var(--font-display); font-size: 1.4rem; font-weight: 800;
+    margin: 0 0 6px; display: flex; align-items: center; gap: 10px;
+  }
+  .dispute-id-block .sub {
+    font-size: 0.85rem; color: var(--ink-soft); display: flex; align-items: center; gap: 8px;
+  }
+  .severity-indicator {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.78rem; font-weight: 700; padding: 6px 12px;
+    border-radius: 100px; background: var(--alert-soft); color: var(--alert-ink);
+  }
+  .severity-indicator .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--alert);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Grid de Informações da Disputa */
+  .dispute-info-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);
+  }
+  .info-block .label {
+    font-size: 0.72rem; font-weight: 700; color: var(--ink-faint);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+  }
+  .info-block .value {
+    font-size: 0.9rem; font-weight: 600; color: var(--ink);
+  }
+  .info-block .value.money {
+    font-family: var(--font-display); font-size: 1.1rem; font-weight: 800;
+    color: var(--accent-ink);
+  }
+
+  /* Layout Principal em 2 Colunas */
+  .dispute-layout {
+    display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px;
+  }
+
+  /* Coluna Esquerda: Chat e Evidências */
+  .evidence-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px;
+  }
+  .evidence-section h2 {
+    font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+    margin: 0 0 16px; display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Chat Completo */
+  .chat-full {
+    background: var(--surface-soft); border-radius: var(--radius-sm);
+    padding: 16px; max-height: 500px; overflow-y: auto;
+  }
+  .chat-msg {
+    margin-bottom: 14px; display: flex; flex-direction: column;
+  }
+  .chat-msg.client { align-items: flex-end; }
+  .chat-msg.provider { align-items: flex-start; }
+  .chat-msg-bubble {
+    padding: 10px 14px; border-radius: 14px; max-width: 80%;
+    font-size: 0.88rem; line-height: 1.5;
+  }
+  .chat-msg.client .chat-msg-bubble {
+    background: var(--accent-soft); color: var(--accent-ink);
+    border-bottom-right-radius: 4px;
+  }
+  .chat-msg.provider .chat-msg-bubble {
+    background: var(--surface); border: 1px solid var(--border); color: var(--ink);
+    border-bottom-left-radius: 4px;
+  }
+  .chat-msg-meta {
+    font-size: 0.72rem; color: var(--ink-faint); margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* Galeria de Evidências */
+  .evidence-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .evidence-item {
+    aspect-ratio: 1; background: var(--surface-soft); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .evidence-item:hover {
+    transform: scale(1.03); box-shadow: 0 4px 12px rgba(16,17,19,0.08);
+  }
+  .evidence-item .icon { font-size: 2rem; }
+  .evidence-item .label {
+    font-size: 0.72rem; color: var(--ink-soft); font-weight: 600;
+  }
+  .evidence-item .badge {
+    position: absolute; top: 6px; right: 6px;
+    font-size: 0.65rem; font-weight: 700; padding: 2px 6px;
+    border-radius: 4px; background: var(--ink); color: #fff;
+  }
+
+  /* Coluna Direita: Partes e Decisão */
+  .parties-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px;
+  }
+  .parties-section h2 {
+    font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+    margin: 0 0 16px;
+  }
+  .party-card {
+    background: var(--surface-soft); border-radius: var(--radius-sm);
+    padding: 14px; margin-bottom: 12px;
+  }
+  .party-card:last-child { margin-bottom: 0; }
+  .party-card-head {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+  }
+  .party-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+  .party-avatar.client { background: var(--accent-soft); color: var(--accent-ink); }
+  .party-avatar.provider { background: var(--alert-soft); color: var(--alert-ink); }
+  .party-info { flex: 1; }
+  .party-name { font-weight: 700; font-size: 0.9rem; color: var(--ink); margin-bottom: 2px; }
+  .party-meta { font-size: 0.75rem; color: var(--ink-soft); }
+  .party-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    font-size: 0.78rem; margin-top: 10px; padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+  .party-stats .label { color: var(--ink-faint); font-weight: 600; }
+  .party-stats .value { color: var(--ink); font-weight: 700; text-align: right; }
+
+  /* Seção de Decisão */
+  .decision-section {
+    background: var(--surface); border: 2px solid var(--alert);
+    border-radius: var(--radius-md); padding: 20px;
+    position: sticky; top: 20px;
+  }
+  .decision-section h2 {
+    font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+    margin: 0 0 16px; color: var(--alert-ink); display: flex; align-items: center; gap: 8px;
+  }
+  .decision-options {
+    display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;
+  }
+  .decision-option {
+    background: var(--surface-soft); border: 2px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .decision-option:hover { border-color: var(--ink); }
+  .decision-option.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .decision-option-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+  }
+  .decision-option-title { font-weight: 700; font-size: 0.9rem; color: var(--ink); }
+  .decision-option-desc { font-size: 0.8rem; color: var(--ink-soft); line-height: 1.4; }
+
+  .decision-reason {
+    margin-bottom: 16px;
+  }
+  .decision-reason label {
+    display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .decision-reason textarea {
+    width: 100%; min-height: 80px; padding: 10px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 0.85rem;
+    resize: vertical;
+  }
+  .decision-reason textarea:focus { border-color: var(--ink); outline: none; }
+
+  .decision-actions {
+    display: flex; gap: 10px;
+  }
+  .decision-actions .btn { flex: 1; }
+
+  /* Timeline Completa */
+  .timeline-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 20px; margin-top: 20px;
+  }
+  .timeline-section h2 {
+    font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+    margin: 0 0 16px;
+  }
+  .full-timeline {
+    border-left: 2px solid var(--border); padding-left: 20px; position: relative;
+  }
+  .tl-event {
+    margin-bottom: 20px; position: relative;
+  }
+  .tl-event::before {
+    content: ''; position: absolute; left: -26px; top: 4px;
+    width: 12px; height: 12px; border-radius: 50%; background: var(--border);
+    border: 2px solid var(--surface);
+  }
+  .tl-event.service::before { background: var(--accent); }
+  .tl-event.dispute::before { background: var(--alert); }
+  .tl-event.admin::before { background: var(--ink); }
+  .tl-time {
+    font-size: 0.72rem; color: var(--ink-faint); font-weight: 600; margin-bottom: 4px;
+  }
+  .tl-desc {
+    font-size: 0.85rem; color: var(--ink); line-height: 1.5;
+  }
+  .tl-desc strong { color: var(--ink); font-weight: 700; }
+
+  @media (max-width: 1000px) {
+    .dispute-layout { grid-template-columns: 1fr; }
+    .decision-section { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand" style="margin-bottom: 8px;">OS<span>Rápida</span><span class="brand-badge">Admin</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-admin.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item active" href="disputas.html"><span class="nav-icon">⚖️</span> Disputas</a>
+      <a class="nav-item" href="usuarios.html"><span class="nav-icon">👥</span> Usuários</a>
+    <a class="nav-item active" href="prestadores.html"><span class="nav-icon">🛠️</span> Prestadores</a>       
+      <a class="nav-item" href="financeiro.html"><span class="nav-icon">💳</span> Transações</a>
+      <a class="nav-item" href="denuncias.html"><span class="nav-icon">🚩</span> Denúncias</a>
+      <div style="flex:1"></div>
+      <a class="nav-item" href="../index.html" style="color: var(--alert); margin-top: auto;"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">Equipe de Confiança</div>
+      <div style="color: #8B8E96; font-size: 0.75rem;">Segurança e Mediação</div>
+      <div class="role-tag" style="margin-top: 10px;">acesso total</div>
+    </div>
+  </aside>
+
+  <main class="main-content" style="max-width: 1400px;">
+    <!-- Breadcrumb -->
+    <div style="font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 16px;">
+      <a href="disputas.html" style="color: var(--ink-soft); text-decoration: none;">Disputas</a> → <span style="color: var(--ink);">Disputa #4471</span>
+    </div>
+
+    <!-- Header da Disputa -->
+    <div class="dispute-header">
+      <div class="dispute-header-top">
+        <div class="dispute-id-block">
+          <h1>
+            Disputa #4471
+            <span class="severity-indicator">
+              <span class="dot"></span>
+              Aguardando decisão
+            </span>
+          </h1>
+          <div class="sub">
+            <span>OS #1042</span>
+            <span style="color: var(--border);">·</span>
+            <span>Aberta há 1 dia</span>
+            <span style="color: var(--border);">·</span>
+            <span>Instalação de ar-condicionado</span>
+          </div>
+        </div>
+        <a href="disputas.html" class="btn btn-outline" style="width: auto; padding: 8px 16px; font-size: 0.82rem;">
+          ← Voltar para lista
+        </a>
+      </div>
+
+      <div class="dispute-info-grid">
+        <div class="info-block">
+          <div class="label">Valor em disputa</div>
+          <div class="value money">R$ 380,00</div>
+        </div>
+        <div class="info-block">
+          <div class="label">Comissão bloqueada</div>
+          <div class="value money">R$ 38,00</div>
+        </div>
+        <div class="info-block">
+          <div class="label">Cliente</div>
+          <div class="value">Renata Alves</div>
+        </div>
+        <div class="info-block">
+          <div class="label">Prestador</div>
+          <div class="value">Marcos Lima</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout Principal -->
+    <div class="dispute-layout">
+      
+      <!-- Coluna Esquerda: Evidências -->
+      <div>
+        <!-- Chat entre as partes -->
+        <div class="evidence-section">
+          <h2>💬 Conversa entre as partes</h2>
+          <div class="chat-full">
+            <div class="chat-msg provider">
+              <div class="chat-msg-bubble">Bom dia! Estou chegando para a instalação do ar-condicionado.</div>
+              <div class="chat-msg-meta">Marcos (Prestador) · 27/08 · 14:20</div>
+            </div>
+            <div class="chat-msg client">
+              <div class="chat-msg-bubble">Ok, estou em casa. Pode subir.</div>
+              <div class="chat-msg-meta">Renata (Cliente) · 27/08 · 14:25</div>
+            </div>
+            <div class="chat-msg provider">
+              <div class="chat-msg-bubble">Serviço concluído. Pode me passar o código de finalização?</div>
+              <div class="chat-msg-meta">Marcos · 27/08 · 18:40</div>
+            </div>
+            <div class="chat-msg client">
+              <div class="chat-msg-bubble">Não vou passar. O ar não está refrigerando direito e ficou sujeira no chão. Vou abrir uma disputa.</div>
+              <div class="chat-msg-meta">Renata · 27/08 · 19:15</div>
+            </div>
+            <div class="chat-msg provider">
+              <div class="chat-msg-bubble">Mas eu testei e estava funcionando. A sujeira foi mínima. Você está sendo injusta.</div>
+              <div class="chat-msg-meta">Marcos · 27/08 · 19:20</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evidências visuais -->
+        <div class="evidence-section">
+          <h2>📷 Evidências enviadas (5)</h2>
+          <div class="evidence-grid">
+            <div class="evidence-item">
+              <span class="badge">Cliente</span>
+              <div class="icon">📷</div>
+              <div class="label">Sujeira no chão</div>
+            </div>
+            <div class="evidence-item">
+              <span class="badge">Cliente</span>
+              <div class="icon">📷</div>
+              <div class="label">Ar não gelando</div>
+            </div>
+            <div class="evidence-item">
+              <span class="badge">Prestador</span>
+              <div class="icon">📷</div>
+              <div class="label">Antes do serviço</div>
+            </div>
+            <div class="evidence-item">
+              <span class="badge">Prestador</span>
+              <div class="icon">📷</div>
+              <div class="label">Depois do serviço</div>
+            </div>
+            <div class="evidence-item">
+              <span class="badge">Prestador</span>
+              <div class="icon">📹</div>
+              <div class="label">Vídeo teste</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline completa -->
+        <div class="timeline-section">
+          <h2>⏱️ Timeline completa do caso</h2>
+          <div class="full-timeline">
+            <div class="tl-event service">
+              <div class="tl-time">25/08 · 10:15</div>
+              <div class="tl-desc"><strong>Serviço contratado</strong> — Renata contratou Marcos para instalação de ar-condicionado</div>
+            </div>
+            <div class="tl-event service">
+              <div class="tl-time">26/08 · 09:00</div>
+              <div class="tl-desc"><strong>Agendamento confirmado</strong> — Visita agendada para 27/08 às 14h</div>
+            </div>
+            <div class="tl-event service">
+              <div class="tl-time">27/08 · 14:20</div>
+              <div class="tl-desc"><strong>Prestador chegou ao local</strong> — Início do serviço</div>
+            </div>
+            <div class="tl-event service">
+              <div class="tl-time">27/08 · 18:40</div>
+              <div class="tl-desc"><strong>Prestador marcou como concluído</strong> — Aguardando código de finalização</div>
+            </div>
+            <div class="tl-event dispute">
+              <div class="tl-time">27/08 · 19:15</div>
+              <div class="tl-desc"><strong>Cliente recusou código e abriu disputa</strong> — Motivo: serviço não concluído conforme combinado</div>
+            </div>
+            <div class="tl-event admin">
+              <div class="tl-time">27/08 · 19:20</div>
+              <div class="tl-desc"><strong>Pagamento retido automaticamente</strong> — R$ 380,00 bloqueados aguardando mediação</div>
+            </div>
+            <div class="tl-event admin">
+              <div class="tl-time">Aguardando</div>
+              <div class="tl-desc"><strong>Decisão do administrador</strong> — Liberar para prestador ou estornar para cliente</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna Direita: Partes e Decisão -->
+      <div>
+        <!-- Informações das partes -->
+        <div class="parties-section">
+          <h2>👥 Partes envolvidas</h2>
+          
+          <div class="party-card">
+            <div class="party-card-head">
+              <div class="party-avatar client">🧑</div>
+              <div class="party-info">
+                <div class="party-name">Renata Alves</div>
+                <div class="party-meta">Cliente · Desde Mar/2023</div>
+              </div>
+            </div>
+            <div class="party-stats">
+              <div>
+                <div class="label">Serviços contratados</div>
+                <div class="value">12</div>
+              </div>
+              <div>
+                <div class="label">Disputas abertas</div>
+                <div class="value">1 (esta)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="party-card">
+            <div class="party-card-head">
+              <div class="party-avatar provider">🛠️</div>
+              <div class="party-info">
+                <div class="party-name">Marcos Lima</div>
+                <div class="party-meta">Prestador · Desde Jun/2023</div>
+              </div>
+            </div>
+            <div class="party-stats">
+              <div>
+                <div class="label">Nota média</div>
+                <div class="value">★ 4,7</div>
+              </div>
+              <div>
+                <div class="label">Serviços concluídos</div>
+                <div class="value">95</div>
+              </div>
+              <div>
+                <div class="label">Disputas anteriores</div>
+                <div class="value">2</div>
+              </div>
+              <div>
+                <div class="label">Advertências</div>
+                <div class="value">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção de Decisão -->
+        <div class="decision-section">
+          <h2>⚖️ Tomar decisão</h2>
+          
+          <div class="decision-options">
+            <div class="decision-option" onclick="selectOption(this, 'prestador')">
+              <div class="decision-option-head">
+                <span style="font-size: 1.2rem;">✓</span>
+                <span class="decision-option-title">Liberar para prestador</span>
+              </div>
+              <div class="decision-option-desc">
+                Transferir R$ 380,00 para Marcos Lima (descontada a comissão de R$ 38,00)
+              </div>
+            </div>
+
+            <div class="decision-option" onclick="selectOption(this, 'cliente')">
+              <div class="decision-option-head">
+                <span style="font-size: 1.2rem;">↩</span>
+                <span class="decision-option-title">Estornar para cliente</span>
+              </div>
+              <div class="decision-option-desc">
+                Devolver R$ 380,00 integralmente para Renata Alves
+              </div>
+            </div>
+
+            <div class="decision-option" onclick="selectOption(this, 'divisao')">
+              <div class="decision-option-head">
+                <span style="font-size: 1.2rem;">⚖️</span>
+                <span class="decision-option-title">Divisão parcial</span>
+              </div>
+              <div class="decision-option-desc">
+                Dividir o valor entre as partes (definir percentual abaixo)
+              </div>
+            </div>
+          </div>
+
+          <div class="decision-reason">
+            <label for="reason">Motivo da decisão (obrigatório)</label>
+            <textarea id="reason" placeholder="Explique o motivo da sua decisão com base nas evidências analisadas..."></textarea>
+          </div>
+
+          <div class="decision-actions">
+            <button class="btn btn-outline" onclick="cancelDecision()">Cancelar</button>
+            <button class="btn btn-alert" onclick="confirmDecision()" id="confirmBtn" disabled>Confirmar decisão</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  let selectedOption = null;
+
+  function selectOption(element, type) {
+    // Remove seleção anterior
+    document.querySelectorAll('.decision-option').forEach(opt => {
+      opt.classList.remove('selected');
+    });
+    
+    // Adiciona seleção atual
+    element.classList.add('selected');
+    selectedOption = type;
+    
+    // Habilita botão de confirmar
+    document.getElementById('confirmBtn').disabled = false;
+  }
+
+  function cancelDecision() {
+    if (confirm('Cancelar decisão? As opções selecionadas serão perdidas.')) {
+      document.querySelectorAll('.decision-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      selectedOption = null;
+      document.getElementById('confirmBtn').disabled = true;
+      document.getElementById('reason').value = '';
+    }
+  }
+
+  function confirmDecision() {
+    const reason = document.getElementById('reason').value.trim();
+    
+    if (!reason) {
+      alert('⚠️ Você precisa informar o motivo da decisão antes de confirmar.');
+      document.getElementById('reason').focus();
+      return;
+    }
+
+    const labels = {
+      'prestador': 'liberar R$ 380,00 para o prestador Marcos Lima',
+      'cliente': 'estornar R$ 380,00 integralmente para a cliente Renata Alves',
+      'divisao': 'dividir o valor entre as partes'
+    };
+
+    if (confirm(`Confirmar decisão: ${labels[selectedOption]}?\n\nEsta ação é irreversível e as partes serão notificadas por e-mail.`)) {
+      alert(`✓ Decisão registrada com sucesso!\n\nMotivo: ${reason}\n\nNotificações enviadas para Renata Alves e Marcos Lima.`);
+      
+      // Aqui você faria o redirect ou atualizaria o status da disputa
+      // window.location.href = 'disputas.html';
+    }
+  }
+</script>
+</body>
+</html>
