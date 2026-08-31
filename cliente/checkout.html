@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagamento · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .wrap{ padding:24px 22px 60px; }
+  .method-toggle{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .method-card{
+    border:1.5px solid var(--border); border-radius:var(--radius-md); padding:14px; text-align:center;
+    cursor:pointer; transition:.15s;
+  }
+  .method-card.selected{ border-color:var(--accent); background:var(--accent-soft); }
+  .method-card .icon{ font-size:1.3rem; margin-bottom:4px; }
+  .method-card .name{ font-weight:700; font-size:0.86rem; }
+
+  .pix-box{ text-align:center; padding:10px 0; }
+  .pix-qr{
+    width:180px; height:180px; margin:0 auto 14px; background:repeating-conic-gradient(#101113 0% 25%, #fff 0% 50%) 0 0/16px 16px;
+    border-radius:var(--radius-md); border:1px solid var(--border);
+  }
+  .pix-code{
+    display:flex; gap:8px; align-items:center; background:var(--surface-soft); border-radius:var(--radius-sm);
+    padding:10px 12px; font-size:0.76rem; color:var(--ink-soft); word-break:break-all; text-align:left;
+  }
+  .pix-code button{ flex-shrink:0; background:var(--ink); color:#fff; border:none; border-radius:100px; padding:6px 12px; font-size:0.74rem; font-weight:700; }
+
+  .success-state{ text-align:center; padding:20px 4px 4px; display:none; }
+  .success-state.show{ display:block; }
+  .check-circle{
+    width:56px; height:56px; border-radius:50%; background:var(--accent-soft); margin:0 auto 16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .check-circle svg{ width:26px; height:26px; }
+  .check-circle path{ stroke:var(--accent-ink); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+</style>
+</head>
+<body>
+
+<div class="container-mobile">
+  <header class="header-dark">
+    <div class="header-top">
+      <div class="brand">OS<span>Rápida</span></div>
+      <a class="pill-link" href="javascript:history.back()">← Voltar</a>
+    </div>
+    <h2 style="font-size:1.1rem; margin:0;">Pagamento</h2>
+  </header>
+
+  <div class="wrap">
+    <div id="payView">
+      <div class="card">
+        <div class="card-label"><span class="dot"></span>Resumo</div>
+        <div class="detail-lines">
+          <div class="detail-line"><span>Serviço</span><span id="sumTitle">Instalação elétrica</span></div>
+          <div class="detail-line"><span>Prestador</span><span id="sumProvider">Carlos Elétrica</span></div>
+          <div class="detail-line"><span>Mão de obra</span><span id="sumValue">R$ 250,00</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="card-label"><span class="dot"></span>Forma de pagamento</div>
+        <div class="method-toggle">
+          <div class="method-card selected" data-method="pix" onclick="selecionarMetodo('pix')">
+            <div class="icon">🔑</div><div class="name">Pix</div>
+          </div>
+          <div class="method-card" data-method="cartao" onclick="selecionarMetodo('cartao')">
+            <div class="icon">💳</div><div class="name">Cartão</div>
+          </div>
+        </div>
+
+        <div id="pixPane">
+          <div class="pix-box">
+            <div class="pix-qr"></div>
+            <p style="font-size:0.8rem; color:var(--ink-soft); margin:0 0 12px;">Escaneie o QR Code no app do seu banco</p>
+            <div class="pix-code">
+              <span id="pixCode">00020126580014BR.GOV.BCB.PIX0136os-rapida-demo-5204000053039865802BR</span>
+              <button onclick="copiarPix()">Copiar</button>
+            </div>
+          </div>
+        </div>
+
+        <form id="cardPane" style="display:none;">
+          <div class="field">
+            <label for="cardNumber">Número do cartão</label>
+            <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="cardExpiry">Validade</label>
+              <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5">
+            </div>
+            <div class="field">
+              <label for="cardCvv">CVV</label>
+              <input type="text" id="cardCvv" placeholder="000" maxlength="4">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <button class="btn btn-accent" style="margin-top:14px;" id="payBtn" onclick="pagar()">Confirmar pagamento</button>
+      <p style="font-size:0.74rem; color:var(--ink-faint); text-align:center; margin-top:12px;">
+        O valor fica retido até você confirmar a conclusão do serviço com o Código de Fim.
+      </p>
+    </div>
+
+    <div class="success-state" id="successState">
+      <div class="check-circle"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+      <h3 style="font-size:1.1rem; margin:0 0 6px;">Pagamento confirmado!</h3>
+      <p style="font-size:0.85rem; color:var(--ink-soft); margin:0 0 20px;">O valor ficará retido com segurança até a conclusão do serviço.</p>
+      <a class="btn btn-dark" href="servicos-contratados.html">Ver meus serviços</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="../js/utils.js"></script>
+<script>
+  // Integração real: troque o QR/código estático por uma chamada ao seu
+  // gateway (Mercado Pago, Stripe etc.) que gera a cobrança vinculada à OS
+  // (Utils.param('os')) e retorna o Pix copia-e-cola ou o client_secret do cartão.
+
+  function selecionarMetodo(m){
+    document.querySelectorAll('.method-card').forEach(c => c.classList.toggle('selected', c.dataset.method === m));
+    document.getElementById('pixPane').style.display = m === 'pix' ? 'block' : 'none';
+    document.getElementById('cardPane').style.display = m === 'cartao' ? 'block' : 'none';
+  }
+
+  function copiarPix(){
+    navigator.clipboard.writeText(document.getElementById('pixCode').textContent);
+    Utils.toast('Código Pix copiado!', 'success');
+  }
+
+  function pagar(){
+    const btn = document.getElementById('payBtn');
+    btn.textContent = 'Processando...';
+    btn.disabled = true;
+
+    // Lógica: aguardar webhook de confirmação do gateway, então
+    // marcar a transação como 'pendente' → 'retido' na tabela transactions
+    setTimeout(() => {
+      document.getElementById('payView').style.display = 'none';
+      document.getElementById('successState').classList.add('show');
+    }, 700);
+  }
+</script>
+</body>
+</html>
