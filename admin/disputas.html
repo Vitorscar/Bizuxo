@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disputas · Admin · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .brand-badge { font-size: 0.65rem; font-weight: 700; color: var(--ink-faint); background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; margin-left: 6px; text-transform: uppercase; }
+
+  /* Filtros */
+  .filters-bar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin: 20px 0 24px; padding: 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+  }
+  .search-filter { flex: 1; min-width: 220px; }
+  .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-chip {
+    font-size: 0.78rem; padding: 7px 14px; border: 1.5px solid var(--border);
+    background: var(--surface-soft); border-radius: 100px; color: var(--ink-soft);
+    font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: var(--ink); color: var(--ink); }
+  .filter-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* Tabela de Disputas */
+  .disputes-table {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); overflow: hidden;
+  }
+  .table-row {
+    display: grid; grid-template-columns: auto 1.5fr 1fr 1fr 0.8fr 1.2fr auto;
+    gap: 14px; padding: 16px 20px; align-items: center;
+    border-bottom: 1px solid var(--border); transition: background 0.1s;
+  }
+  .table-row:last-child { border-bottom: none; }
+  .table-row:hover { background: var(--surface-soft); }
+  .table-head {
+    background: var(--surface-soft); font-size: 0.72rem; font-weight: 700;
+    color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 12px 20px;
+  }
+  .table-head:hover { background: var(--surface-soft); }
+
+  .dispute-id { font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; color: var(--ink); }
+  .dispute-service { font-size: 0.88rem; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .dispute-os { font-size: 0.75rem; color: var(--ink-soft); }
+  .party-pill { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; }
+  .party-pill .mini-avatar {
+    width: 22px; height: 22px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 0.7rem;
+  }
+  .party-pill.client .mini-avatar { background: var(--accent-soft); color: var(--accent-ink); }
+  .party-pill.provider .mini-avatar { background: var(--alert-soft); color: var(--alert-ink); }
+  .dispute-value { font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; }
+  .dispute-time { font-size: 0.78rem; color: var(--ink-soft); }
+
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 100px;
+  }
+  .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-pill.open { background: var(--alert-soft); color: var(--alert-ink); }
+  .status-pill.open .dot { background: var(--alert); animation: pulse 2s infinite; }
+  .status-pill.review { background: var(--amber-soft); color: var(--amber); }
+  .status-pill.review .dot { background: var(--amber); }
+  .status-pill.resolved { background: var(--surface-soft); color: var(--ink-soft); }
+  .status-pill.resolved .dot { background: var(--ink-faint); }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .action-btn {
+    background: var(--surface-soft); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 600; color: var(--ink);
+    transition: all 0.15s;
+  }
+  .action-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* Modal de Detalhes */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(11, 11, 13, 0.6);
+    backdrop-filter: blur(4px); z-index: 1000; display: none;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    background: var(--surface); border-radius: var(--radius-lg); max-width: 900px;
+    width: 100%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .modal-header {
+    padding: 20px 24px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-close {
+    background: var(--surface-soft); border: none; width: 32px; height: 32px;
+    border-radius: 50%; cursor: pointer; font-size: 1rem; color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-body {
+    padding: 24px; overflow-y: auto; display: grid;
+    grid-template-columns: 1.2fr 1fr; gap: 24px;
+  }
+  .modal-section h3 {
+    font-family: var(--font-display); font-size: 0.9rem; font-weight: 700;
+    margin: 0 0 12px; color: var(--ink);
+  }
+
+  /* Chat resumido no modal */
+  .chat-preview {
+    background: var(--surface-soft); border-radius: var(--radius-sm);
+    padding: 14px; max-height: 240px; overflow-y: auto;
+  }
+  .chat-msg {
+    margin-bottom: 10px; padding: 8px 12px; border-radius: 12px;
+    font-size: 0.82rem; max-width: 85%; line-height: 1.4;
+  }
+  .chat-msg.client { background: var(--accent-soft); color: var(--accent-ink); margin-left: auto; }
+  .chat-msg.provider { background: var(--surface); border: 1px solid var(--border); color: var(--ink); }
+  .chat-msg-meta { font-size: 0.7rem; color: var(--ink-faint); margin-bottom: 3px; font-weight: 600; }
+
+  /* Evidências (fotos) */
+  .evidence-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  .evidence-item {
+    aspect-ratio: 1; background: var(--surface-soft); border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+    color: var(--ink-faint); cursor: pointer; transition: transform 0.15s;
+  }
+  .evidence-item:hover { transform: scale(1.05); }
+
+  /* Timeline da disputa */
+  .dispute-timeline {
+    border-left: 2px solid var(--border); padding-left: 16px; position: relative;
+  }
+  .dt-item { margin-bottom: 16px; position: relative; }
+  .dt-item::before {
+    content: ''; position: absolute; left: -21px; top: 4px;
+    width: 10px; height: 10px; border-radius: 50%; background: var(--border);
+  }
+  .dt-item.active::before { background: var(--alert); }
+  .dt-item.done::before { background: var(--accent); }
+  .dt-time { font-size: 0.72rem; color: var(--ink-faint); font-weight: 600; margin-bottom: 2px; }
+  .dt-desc { font-size: 0.82rem; color: var(--ink); }
+
+  .modal-actions {
+    padding: 16px 24px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
+    background: var(--surface-soft);
+  }
+  .modal-actions .btn { width: auto; padding: 10px 18px; font-size: 0.85rem; }
+
+  @media (max-width: 900px) {
+    .table-row { grid-template-columns: 1fr; gap: 8px; }
+    .table-head { display: none; }
+    .modal-body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand" style="margin-bottom: 8px;">OS<span>Rápida</span><span class="brand-badge">Admin</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-admin.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item active" href="disputas.html"><span class="nav-icon">⚖️</span> Disputas <span style="margin-left:auto; background:var(--alert); color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:10px;">3</span></a>
+      <a class="nav-item" href="usuarios.html"><span class="nav-icon">👥</span> Usuários</a>
+      <a class="nav-item" href="transacoes.html"><span class="nav-icon">💳</span> Transações</a>
+      <a class="nav-item" href="denuncias.html"><span class="nav-icon">🚩</span> Denúncias</a>
+      <div style="flex:1"></div>
+      <a class="nav-item" href="../index.html" style="color: var(--alert); margin-top: auto;"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">Equipe de Confiança</div>
+      <div style="color: #8B8E96; font-size: 0.75rem;">Segurança e Mediação</div>
+      <div class="role-tag" style="margin-top: 10px;">acesso total</div>
+    </div>
+  </aside>
+
+  <main class="main-content" style="max-width: 1200px;">
+    <div class="page-topbar">
+      <div>
+        <h1>Central de Disputas</h1>
+        <div class="sub">Medeie conflitos e libere pagamentos retidos.</div>
+      </div>
+      <button class="btn btn-outline" style="width:auto; padding:10px 16px; font-size:0.85rem;">📥 Exportar CSV</button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-bar">
+      <input type="text" class="search-filter" placeholder="🔍 Buscar por nome, ID ou OS...">
+      <div class="filter-chips">
+        <span class="filter-chip active">Todas (8)</span>
+        <span class="filter-chip">Em aberto (3)</span>
+        <span class="filter-chip">Em análise (2)</span>
+        <span class="filter-chip">Resolvidas (3)</span>
+      </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="disputes-table">
+      <div class="table-row table-head">
+        <div>ID</div>
+        <div>Serviço</div>
+        <div>Cliente</div>
+        <div>Prestador</div>
+        <div>Valor</div>
+        <div>Status</div>
+        <div></div>
+      </div>
+      <div id="disputesTable"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal de Detalhes da Disputa -->
+<div class="modal-overlay" id="disputeModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div>
+        <h2 style="font-size: 1.1rem; margin: 0;" id="modalTitle">Disputa #4471</h2>
+        <div style="font-size: 0.8rem; color: var(--ink-soft); margin-top: 2px;">Aberta há 1 dia · OS #1042</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Coluna Esquerda: Chat e Evidências -->
+      <div>
+        <div class="modal-section">
+          <h3>💬 Conversa entre as partes</h3>
+          <div class="chat-preview">
+            <div class="chat-msg provider">
+              <div class="chat-msg-meta">Marcos (Prestador) · 27/08 14:20</div>
+              Bom dia! Estou chegando para a instalação.
+            </div>
+            <div class="chat-msg client">
+              <div class="chat-msg-meta">Renata (Cliente) · 27/08 14:25</div>
+              Ok, estou em casa.
+            </div>
+            <div class="chat-msg provider">
+              <div class="chat-msg-meta">Marcos · 27/08 18:40</div>
+              Serviço concluído. Pode me passar o código de finalização?
+            </div>
+            <div class="chat-msg client">
+              <div class="chat-msg-meta">Renata · 27/08 19:15</div>
+              Não vou passar. O ar não está refrigerando direito e ficou sujeira no chão.
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section" style="margin-top: 20px;">
+          <h3>📷 Evidências enviadas</h3>
+          <div class="evidence-grid">
+            <div class="evidence-item">📷</div>
+            <div class="evidence-item">📷</div>
+            <div class="evidence-item">📷</div>
+            <div class="evidence-item">📹</div>
+            <div class="evidence-item">📄</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna Direita: Detalhes e Timeline -->
+      <div>
+        <div class="modal-section">
+          <h3>📋 Detalhes da disputa</h3>
+          <div style="background: var(--surface-soft); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 12px;">
+            <div style="font-size: 0.72rem; font-weight: 700; color: var(--ink-faint); margin-bottom: 6px;">MOTIVO DA ABERTURA</div>
+            <div style="font-size: 0.85rem; color: var(--ink); line-height: 1.5;">
+              Cliente alega que o serviço não foi concluído conforme combinado e há sujeira no local.
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.82rem;">
+            <div>
+              <div style="color: var(--ink-faint); font-size: 0.72rem; font-weight: 600;">VALOR EM DISPUTA</div>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); margin-top: 2px;">R$ 380,00</div>
+            </div>
+            <div>
+              <div style="color: var(--ink-faint); font-size: 0.72rem; font-weight: 600;">COMISSÃO BLOQUEADA</div>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); margin-top: 2px;">R$ 38,00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section" style="margin-top: 20px;">
+          <h3>⏱️ Timeline da disputa</h3>
+          <div class="dispute-timeline">
+            <div class="dt-item done">
+              <div class="dt-time">27/08 · 10:15</div>
+              <div class="dt-desc">Serviço contratado</div>
+            </div>
+            <div class="dt-item done">
+              <div class="dt-time">27/08 · 18:40</div>
+              <div class="dt-desc">Prestador marcou como concluído</div>
+            </div>
+            <div class="dt-item active">
+              <div class="dt-time">27/08 · 19:20</div>
+              <div class="dt-desc">Cliente abriu disputa</div>
+            </div>
+            <div class="dt-item">
+              <div class="dt-time">Aguardando</div>
+              <div class="dt-desc">Decisão do administrador</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-alert" onclick="resolveDispute('cliente')">↩ Estornar cliente</button>
+      <button class="btn btn-accent" onclick="resolveDispute('prestador')">✓ Liberar prestador</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const DISPUTES = [
+    { id: 4471, os: 1042, service: "Instalação de ar-condicionado", value: "R$ 380,00", client: "Renata A.", provider: "Marcos L.", status: "open", statusLabel: "Em aberto", time: "há 1 dia" },
+    { id: 4468, os: 1039, service: "Troca de fechadura", value: "R$ 90,00", client: "Bruno F.", provider: "João R.", status: "open", statusLabel: "Em aberto", time: "há 2 dias" },
+    { id: 4460, os: 1031, service: "Pintura de sala", value: "R$ 420,00", client: "Camila D.", provider: "Pinturas R.", status: "review", statusLabel: "Em análise", time: "há 3 dias" },
+    { id: 4455, os: 1028, service: "Conserto de torneira", value: "R$ 120,00", client: "Ana S.", provider: "Hidráulica P.", status: "resolved", statusLabel: "Resolvida", time: "há 5 dias" },
+    { id: 4450, os: 1024, service: "Montagem de armário", value: "R$ 280,00", client: "Paulo M.", provider: "Marcenaria F.", status: "review", statusLabel: "Em análise", time: "há 6 dias" },
+  ];
+
+  const table = document.getElementById('disputesTable');
+  DISPUTES.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'table-row';
+    row.innerHTML = `
+      <div class="dispute-id">#${d.id}</div>
+      <div>
+        <div class="dispute-service">${d.service}</div>
+        <div class="dispute-os">OS #${d.os}</div>
+      </div>
+      <div class="party-pill client">
+        <span class="mini-avatar">🧑</span>${d.client}
+      </div>
+      <div class="party-pill provider">
+        <span class="mini-avatar">🛠️</span>${d.provider}
+      </div>
+      <div class="dispute-value">${d.value}</div>
+      <div><span class="status-pill ${d.status}"><span class="dot"></span>${d.statusLabel}</span></div>
+      <button class="action-btn" onclick="openModal(${d.id})">Analisar</button>
+    `;
+    table.appendChild(row);
+  });
+
+  function openModal(id) {
+    document.getElementById('modalTitle').textContent = `Disputa #${id}`;
+    document.getElementById('disputeModal').classList.add('active');
+  }
+  function closeModal() {
+    document.getElementById('disputeModal').classList.remove('active');
+  }
+  function resolveDispute(favorecido) {
+    const acao = favorecido === 'prestador' ? 'liberar o pagamento' : 'estornar o valor';
+    if (confirm(`Confirmar decisão: ${acao}?`)) {
+      alert(`✓ Decisão registrada. Notificações enviadas às partes.`);
+      closeModal();
+    }
+  }
+
+  // Filtros
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
