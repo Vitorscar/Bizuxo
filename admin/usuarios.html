@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Usuários · Admin OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .badge-role{ font-size:0.68rem; font-weight:700; padding:3px 9px; border-radius:100px; }
+  .badge-role.cliente{ background:var(--accent-soft); color:var(--accent-ink); }
+  .badge-role.prestador{ background:var(--alert-soft); color:var(--alert-ink); }
+  .badge-status{ font-size:0.68rem; font-weight:700; padding:3px 9px; border-radius:100px; background:var(--surface-soft); color:var(--ink-soft); }
+  .badge-status.bloqueado{ background:var(--alert-soft); color:var(--alert-ink); }
+  .row-action-btn{ width:auto; padding:8px 13px; font-size:0.76rem; border-radius:100px; font-family:var(--font-body); font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">OS<span>Rápida</span> <span style="font-size:0.65rem; color:#9A9CA3; font-weight:400;">admin</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="disputas.html"><span class="nav-icon">⚖️</span> Disputas</a>
+      <a class="nav-item active neutral" href="usuarios.html"><span class="nav-icon">👥</span> Usuários</a>
+      <a class="nav-item" href="transacoes.html"><span class="nav-icon">💳</span> Transações</a>
+      <a class="nav-item" href="denuncias.html"><span class="nav-icon">🚩</span> Denúncias</a>
+      <a class="nav-item" href="../index.html" style="color:var(--alert);"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      Equipe de Confiança e Segurança
+      <div class="role-tag neutral">acesso admin</div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-topbar">
+      <div>
+        <h1>Usuários</h1>
+        <div class="sub" id="results-count">carregando...</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input class="search-input" id="search" type="text" placeholder="Buscar por nome ou e-mail...">
+    </div>
+    <div class="chip-select" id="filters">
+      <span class="chip selected" data-filter="all">Todos</span>
+      <span class="chip" data-filter="cliente">Clientes</span>
+      <span class="chip" data-filter="prestador">Prestadores</span>
+      <span class="chip" data-filter="bloqueado">Bloqueados</span>
+    </div>
+
+    <div id="list" style="margin-top:22px;"></div>
+    <div class="empty-state" id="empty" style="display:none;">
+      <h3>Nenhum usuário encontrado</h3>
+      <p>Tente outro filtro ou termo de busca.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+  const USERS = [
+    { id: 101, name: "Maria Oliveira", role: "cliente", loc: "Águas Claras", since: "jan/2025", status: "ativo", email: "maria@email.com" },
+    { id: 102, name: "Carlos Silva", role: "prestador", loc: "Águas Claras", since: "mar/2024", status: "ativo", email: "carlos@email.com" },
+    { id: 103, name: "Renata Alves", role: "cliente", loc: "Águas Claras", since: "ago/2026", status: "ativo", email: "renata@email.com" },
+    { id: 104, name: "Marcos Lima", role: "prestador", loc: "Taguatinga", since: "jun/2023", status: "bloqueado", email: "marcos@email.com" },
+    { id: 105, name: "Pinturas Rocha", role: "prestador", loc: "Taguatinga", since: "ago/2026", status: "ativo", email: "contato@pinturasrocha.com" },
+    { id: 106, name: "Bruno Ferreira", role: "cliente", loc: "Sudoeste", since: "ago/2026", status: "ativo", email: "bruno@email.com" },
+  ];
+
+  let activeFilter = "all";
+  let searchTerm = "";
+
+  function render(){
+    const list = document.getElementById("list");
+    const empty = document.getElementById("empty");
+    const filtered = USERS.filter(u => {
+      const matchesFilter = activeFilter === "all" || u.role === activeFilter || u.status === activeFilter;
+      const matchesSearch = !searchTerm ||
+        u.name.toLowerCase().includes(searchTerm) || u.email.toLowerCase().includes(searchTerm);
+      return matchesFilter && matchesSearch;
+    });
+
+    document.getElementById("results-count").textContent = `${filtered.length} usuário${filtered.length !== 1 ? "s" : ""}`;
+
+    list.innerHTML = "";
+    empty.style.display = filtered.length ? "none" : "block";
+
+    filtered.forEach(u => {
+      const el = document.createElement("div");
+      el.className = "list-row";
+      el.innerHTML = `
+        <div class="avatar avatar-md">${u.role === 'prestador' ? '🛠️' : '🧑'}</div>
+        <div class="list-row-main">
+          <div class="list-row-title">${u.name}</div>
+          <div class="list-row-sub"><span>${u.email}</span><span class="sep">·</span><span>📍 ${u.loc}</span><span class="sep">·</span><span>desde ${u.since}</span></div>
+        </div>
+        <div class="list-row-side">
+          <div style="display:flex; gap:6px;">
+            <span class="badge-role ${u.role}">${u.role}</span>
+            <span class="badge-status ${u.status}">${u.status}</span>
+          </div>
+          <button class="btn ${u.status === 'bloqueado' ? 'btn-accent' : 'btn-outline'} row-action-btn" onclick="alternarStatus(${u.id}, this)">
+            ${u.status === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}
+          </button>
+        </div>`;
+      list.appendChild(el);
+    });
+  }
+
+  function alternarStatus(id, btn){
+    const user = USERS.find(u => u.id === id);
+    user.status = user.status === 'bloqueado' ? 'ativo' : 'bloqueado';
+    // Lógica Supabase: update em 'profiles' (status) — considerar registrar o motivo do bloqueio
+    render();
+  }
+
+  document.getElementById("filters").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if(!chip) return;
+    document.querySelectorAll("#filters .chip").forEach(c => c.classList.remove("selected"));
+    chip.classList.add("selected");
+    activeFilter = chip.dataset.filter;
+    render();
+  });
+
+  document.getElementById("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

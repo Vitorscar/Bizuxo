@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Meu Perfil Público · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+
+<style>
+  /* ============================================================
+     Complementos visuais: Edição de Perfil do Prestador
+     ============================================================ */
+  
+  /* Wrapper do Avatar com Botão de Edição */
+  .avatar-edit-wrap {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 16px;
+  }
+  .avatar-edit-wrap .avatar-lg {
+    width: 96px;
+    height: 96px;
+    font-size: 2.5rem;
+    border: 3px solid var(--surface);
+    box-shadow: 0 4px 12px rgba(16, 17, 19, 0.08);
+  }
+  .avatar-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--alert);
+    color: #fff;
+    border: 2px solid var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: transform 0.15s ease;
+  }
+  .avatar-edit-btn:hover { transform: scale(1.1); }
+  .avatar-edit-btn input { display: none; }
+
+  /* Badges e Indicadores */
+  .verified-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+  .verified-pill svg { width: 14px; height: 14px; fill: currentColor; }
+
+  /* Grid de Desempenho (Read-only) */
+  .performance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin: 20px 0;
+    border: 1px solid var(--border);
+  }
+  .perf-item {
+    background: var(--surface-soft);
+    padding: 16px 8px;
+    text-align: center;
+  }
+  .perf-item b {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .perf-item span {
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1.3;
+  }
+
+  /* Chips de Especialidade (Tema Prestador) */
+  .chip-select .chip.selected.alert {
+    background: var(--alert);
+    border-color: var(--alert);
+    color: #fff;
+  }
+
+  /* Preview de Avaliações */
+  .review-mini {
+    background: var(--surface-soft);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .review-mini:last-child { margin-bottom: 0; }
+  .review-mini-head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .review-mini-name { font-weight: 700; font-size: 0.85rem; color: var(--ink); }
+  .review-mini-stars { color: var(--amber); font-size: 0.85rem; letter-spacing: 1px; }
+  .review-mini-text { font-size: 0.82rem; color: var(--ink-soft); line-height: 1.4; margin: 0; }
+
+  /* Sticky Save Bar */
+  .sticky-save-bar {
+    position: sticky;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    padding: 16px 0 max(16px, env(safe-area-inset-bottom));
+    margin: 30px -40px -30px; /* Compensa o padding do main-content */
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    z-index: 50;
+    box-shadow: 0 -4px 20px rgba(16, 17, 19, 0.05);
+  }
+  .sticky-save-bar .btn { width: auto; }
+
+  @media (max-width: 768px) {
+    .sticky-save-bar { margin: 30px -18px -22px; padding: 16px 18px max(16px, env(safe-area-inset-bottom)); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand alert" style="margin-bottom: 8px;">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-prestador.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="demandas-disponiveis.html"><span class="nav-icon">🔍</span> Demandas Disponíveis</a>
+      <a class="nav-item" href="minhas-propostas.html"><span class="nav-icon">📨</span> Minhas Propostas</a>
+      <a class="nav-item" href="ordens-servico.html"><span class="nav-icon">🛠️</span> Ordens de Serviço</a>
+      <a class="nav-item" href="historico-financeiro.html"><span class="nav-icon">💳</span> Histórico Financeiro</a>
+      <a class="nav-item active" href="meu-perfil-prestador.html"><span class="nav-icon">⚙️</span> Meus Dados</a>
+      <div style="flex:1"></div>
+      <a class="nav-item" href="../index.html" style="color: var(--alert); margin-top: auto;"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">Olá, Carlos</div>
+      <div style="color: #8B8E96; font-size: 0.75rem; margin-bottom: 10px;">Águas Claras, DF</div>
+ <div
+  class="role-tag"
+  style="color: #FF3B30 !important; border-color: rgba(255, 59, 48, 0.45) !important;"
+>
+  conta prestador
+</div>
+    </div>
+  </aside>
+
+  <!-- Conteúdo Principal -->
+  <main class="main-content" style="max-width: 720px;">
+    <div class="page-topbar">
+      <div>
+        <h1>Meu Perfil Público</h1>
+        <div class="sub">Edite as informações que os clientes veem quando analisam seu trabalho.</div>
+      </div>
+      <a class="btn btn-outline" href="perfil-publico-preview.html" style="width: auto; display: inline-flex; align-items: center; gap: 6px;">
+        <span>👁️</span> Visualizar
+      </a>
+    </div>
+
+    <form id="profileForm" style="margin-top: 24px; padding-bottom: 20px;">
+      
+      <!-- Card 1: Identidade Visual -->
+      <div class="card">
+        <div class="card-label alert"><span class="dot"></span>Identidade e Contato</div>
+        
+        <div class="avatar-edit-wrap">
+          <div class="avatar avatar-lg" id="avatarPreview">👨‍🔧</div>
+          <label class="avatar-edit-btn" title="Alterar foto">
+            📷
+            <input type="file" id="avatarInput" accept="image/*">
+          </label>
+        </div>
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div class="verified-pill">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            Identidade verificada
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="nome">Nome completo ou Nome profissional</label>
+          <input type="text" id="nome" value="Carlos Elétrica" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="whatsapp">WhatsApp para contato</label>
+            <input type="tel" id="whatsapp" value="(61) 98888-7777" required>
+          </div>
+          <div class="field">
+            <label for="email">E-mail (não pode ser alterado)</label>
+            <input type="email" id="email" value="carlos@email.com" disabled style="opacity: 0.7; cursor: not-allowed;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Desempenho (Read-Only) -->
+      <div class="card">
+        <div class="card-label alert"><span class="dot"></span>Seu Desempenho</div>
+        <p style="font-size: 0.82rem; color: var(--ink-soft); margin: -8px 0 16px;">
+          Estas métricas são calculadas automaticamente e influenciam sua posição nas buscas.
+        </p>
+        <div class="performance-grid">
+          <div class="perf-item">
+            <b style="color: var(--amber);">★ 4,9</b>
+            <span>Nota média</span>
+          </div>
+          <div class="perf-item">
+            <b>127</b>
+            <span>Serviços concluídos</span>
+          </div>
+          <div class="perf-item">
+            <b>~1h</b>
+            <span>Tempo de resposta</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Detalhes Profissionais -->
+      <div class="card">
+        <div class="card-label alert"><span class="dot"></span>Detalhes Profissionais</div>
+        
+        <div class="field">
+          <label>Tipos de serviço que você presta</label>
+          <div class="chip-select" id="chipContainer">
+            <span class="chip selected alert" data-value="eletrica">⚡ Elétrica</span>
+            <span class="chip selected alert" data-value="instalacao">🔌 Instalações</span>
+            <span class="chip selected alert" data-value="manutencao">🛠️ Manutenção</span>
+            <span class="chip" data-value="hidraulica">🚿 Hidráulica</span>
+            <span class="chip" data-value="arcondicionado">❄️ Ar-condicionado</span>
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-top: 16px;">
+          <div class="field">
+            <label for="cidade">Cidade base</label>
+            <input type="text" id="cidade" value="Brasília">
+          </div>
+          <div class="field">
+            <label for="regiao">Regiões que atende</label>
+            <input type="text" id="regiao" value="Águas Claras, Taguatinga, Centro">
+          </div>
+        </div>
+
+        <div class="field" style="margin-top: 16px;">
+          <label for="bio">Sobre você e seu trabalho</label>
+          <textarea id="bio" rows="4" placeholder="Conte sua experiência, especialidades e diferenciais para o cliente...">Eletricista profissional com 8 anos de experiência. Ofereço atendimento rápido, transparente e com garantia de 90 dias em todos os serviços realizados. Especialista em instalações residenciais e pequenos reparos emergenciais.</textarea>
+          <div class="helper">Dica: Mencione sua experiência e garantias para passar mais confiança.</div>
+        </div>
+      </div>
+
+      <!-- Card 4: Avaliações Recentes (Read-Only) -->
+      <div class="card">
+        <div class="card-label alert"><span class="dot"></span>Como os clientes te avaliam</div>
+        <p style="font-size: 0.82rem; color: var(--ink-soft); margin: -8px 0 16px;">
+          As avaliações são públicas e não podem ser editadas, mas você pode responder a elas nas Ordens de Serviço.
+        </p>
+        
+        <div class="review-mini">
+          <div class="review-mini-head">
+            <span class="review-mini-name">Maria Oliveira</span>
+            <span class="review-mini-stars">★★★★★</span>
+          </div>
+          <p class="review-mini-text">Pontual e resolveu tudo rapidinho. Deixou o local super limpo após o serviço!</p>
+        </div>
+        
+        <div class="review-mini">
+          <div class="review-mini-head">
+            <span class="review-mini-name">João Pedro</span>
+            <span class="review-mini-stars">★★★★★</span>
+          </div>
+          <p class="review-mini-text">Preço justo e explicou tudo que estava fazendo antes de começar. Show.</p>
+        </div>
+      </div>
+
+      <!-- Sticky Save Bar -->
+      <div class="sticky-save-bar">
+        <a href="dashboard-prestador.html" class="btn btn-ghost" style="width: auto; padding: 14px 20px;">Cancelar</a>
+        <button type="submit" class="btn btn-alert" id="saveBtn" style="width: auto; padding: 14px 28px;">
+          Salvar alterações no perfil
+        </button>
+      </div>
+
+    </form>
+  </main>
+</div>
+
+<script>
+  // 1. Lógica de Seleção de Chips (Especialidades)
+  document.querySelectorAll('#chipContainer .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('selected');
+      chip.classList.toggle('alert');
+    });
+  });
+
+  // 2. Preview de Imagem do Avatar
+  const avatarInput = document.getElementById('avatarInput');
+  const avatarPreview = document.getElementById('avatarPreview');
+
+  avatarInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        // Substitui o emoji pela imagem real
+        avatarPreview.innerHTML = `<img src="${event.target.result}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // 3. Simulação de Salvamento
+  document.getElementById('profileForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('saveBtn');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<span style="display:inline-block; animation: spin 1s linear infinite;">⟳</span> Salvando...';
+    btn.disabled = true;
+
+    // Coleta de dados para o Supabase
+    const formData = {
+      nome: document.getElementById('nome').value,
+      whatsapp: document.getElementById('whatsapp').value,
+      cidade: document.getElementById('cidade').value,
+      regiao: document.getElementById('regiao').value,
+      bio: document.getElementById('bio').value,
+      especialidades: Array.from(document.querySelectorAll('#chipContainer .chip.selected')).map(c => c.dataset.value)
+    };
+    console.log("Dados para atualizar:", formData);
+
+    // Simulação de delay de rede
+    setTimeout(() => {
+      btn.innerHTML = 'Salvo com sucesso ✓';
+      btn.style.background = 'var(--accent)'; // Muda para verde temporariamente
+      
+      setTimeout(() => { 
+        btn.innerHTML = originalText; 
+        btn.style.background = ''; // Volta ao vermelho (alert) original
+        btn.disabled = false; 
+      }, 2000);
+    }, 800);
+  });
+</script>
+
+<style>
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+</body>
+</html>

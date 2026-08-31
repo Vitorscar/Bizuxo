@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serviços Contratados · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .new-btn-wrap{ display:flex; }
+  .new-btn{ width:auto; padding:12px 20px; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-cliente.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="minhas-demandas.html"><span class="nav-icon">✉</span> Minhas Demandas</a>
+      <a class="nav-item active" href="servicos-contratados.html"><span class="nav-icon">🛠️</span> Serviços Contratados</a>
+      <a class="nav-item" href="meu-perfil-cliente.html"><span class="nav-icon">⚙️</span> Meus Dados</a>
+      <a class="nav-item" href="../index.html" style="color:var(--alert);"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      Olá, Maria<br>Águas Claras, DF
+      <div class="role-tag">conta cliente</div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-topbar">
+      <div>
+        <h1>Serviços Contratados</h1>
+        <div class="sub">Acompanhe a execução e avalie os serviços que você contratou.</div>
+      </div>
+      <a class="btn btn-accent new-btn" href="nova-demanda.html">＋ Nova Demanda</a>
+    </div>
+
+    <div class="toolbar">
+      <input class="search-input" id="search" type="text" placeholder="Buscar por serviço ou prestador...">
+    </div>
+    <div class="chip-select" id="filters">
+      <span class="chip selected" data-filter="all">Todos</span>
+      <span class="chip" data-filter="agendado">Agendados</span>
+      <span class="chip" data-filter="andamento">Em andamento</span>
+      <span class="chip" data-filter="concluido">Concluídos</span>
+    </div>
+
+    <div class="ticket-list" id="list" style="margin-top:22px;"></div>
+
+    <div class="empty-state" id="empty" style="display:none;">
+      <h3>Nenhum serviço contratado ainda</h3>
+      <p>Quando você aceitar uma proposta de um prestador, ela aparecerá aqui como uma ordem de serviço.</p>
+      <a class="btn btn-accent" href="nova-demanda.html" style="width:auto; display:inline-block; margin-top:16px; padding:12px 20px;">Criar minha primeira demanda</a>
+    </div>
+  </main>
+</div>
+
+<script>
+  const ORDERS = [
+    {
+      id: 1088, title: "Instalação elétrica — cômodo extra", provider: "Carlos Silva", avatar: "👨‍🔧",
+      date: "28/08", value: "R$ 250,00", loc: "Águas Claras",
+      status: "andamento", statusLabel: "Em andamento",
+      actionText: "Acompanhar", actionLink: "detalhe-demanda-cliente.html?id=1088"
+    },
+    {
+      id: 1095, title: "Limpeza profunda de sofá 3 lugares", provider: "LavaJato Express", avatar: "🛋️",
+      date: "02/09", value: "R$ 180,00", loc: "Águas Claras",
+      status: "agendado", statusLabel: "Agendado",
+      actionText: "Ver detalhes", actionLink: "detalhe-demanda-cliente.html?id=1095"
+    },
+    {
+      id: 950, title: "Troca de resistência do chuveiro", provider: "João Marcos", avatar: "🔧",
+      date: "15/08", value: "R$ 80,00", loc: "Águas Claras",
+      status: "concluido", statusLabel: "Concluído",
+      actionText: "Ver avaliação", actionLink: "detalhe-demanda-cliente.html?id=950"
+    },
+    {
+      id: 912, title: "Reparo em porta de armário", provider: "Marcenaria Top", avatar: "🪵",
+      date: "10/08", value: "R$ 120,00", loc: "Sudoeste",
+      status: "cancelado", statusLabel: "Cancelado",
+      actionText: "Ver motivo", actionLink: "#"
+    }
+  ];
+
+  let activeFilter = "all";
+  let searchTerm = "";
+
+  function render(){
+    const list = document.getElementById("list");
+    const empty = document.getElementById("empty");
+
+    const filtered = ORDERS.filter(d => {
+      const matchesFilter = activeFilter === "all" || d.status === activeFilter;
+      const matchesSearch = !searchTerm ||
+        d.title.toLowerCase().includes(searchTerm) || d.provider.toLowerCase().includes(searchTerm);
+      return matchesFilter && matchesSearch;
+    });
+
+    list.innerHTML = "";
+    empty.style.display = filtered.length ? "none" : "block";
+    list.style.display = filtered.length ? "block" : "none";
+
+    filtered.forEach(d => {
+      const el = document.createElement("a");
+      el.href = d.actionLink;
+      el.className = "list-row";
+      el.innerHTML = `
+        <div class="avatar avatar-md">${d.avatar}</div>
+        <div class="list-row-main">
+          <div class="list-row-title">${d.title}</div>
+          <div class="list-row-sub">
+            <span>${d.provider}</span><span class="sep">·</span><span>📍 ${d.loc}</span><span class="sep">·</span><span>OS #${d.id}</span>
+          </div>
+        </div>
+        <div class="list-row-side">
+          <span class="status-badge status-${d.status}">${d.statusLabel}</span>
+          <span class="list-row-value">${d.value}</span>
+          <span class="list-row-date">${d.date} · ${d.actionText} →</span>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  document.getElementById("filters").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if(!chip) return;
+    document.querySelectorAll("#filters .chip").forEach(c => c.classList.remove("selected"));
+    chip.classList.add("selected");
+    activeFilter = chip.dataset.filter;
+    render();
+  });
+
+  document.getElementById("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

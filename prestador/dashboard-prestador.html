@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Painel do Profissional · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+
+<style>
+  /* ============================================================
+     Complementos visuais para o Dashboard do Prestador
+     ============================================================ */
+ 
+  /* Grid de Estatísticas */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 17, 19, 0.06);
+  }
+  /* Destaque para a métrica mais importante (Oportunidades) */
+  .stat-card.highlight {
+    border-top: 3px solid var(--alert);
+    background: linear-gradient(to bottom, #fff, var(--surface-soft));
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Cabeçalho de Seção */
+  .section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 36px 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-heading h2 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .section-heading a {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .section-heading a:hover { color: var(--ink); }
+
+  /* Banner CTA Premium (Foco em Ação) */
+  .cta-banner {
+    background: linear-gradient(135deg, var(--bg-app) 0%, #1A1B1E 100%);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 12px 32px rgba(11, 11, 13, 0.15);
+  }
+  .cta-banner h3 { font-size: 1.2rem; margin: 0 0 6px; font-weight: 700; }
+  .cta-banner p { font-size: 0.88rem; color: #B6B8BE; margin: 0; max-width: 45ch; line-height: 1.5; }
+  .cta-banner .btn { width: auto; padding: 12px 24px; flex-shrink: 0; }
+
+  /* Badges de Status Específicos para Propostas */
+  .status-pendente { background: var(--amber-soft); color: var(--amber); }
+  .status-aceita { background: var(--accent-soft); color: var(--accent-ink); }
+  .status-recusada { background: var(--alert-soft); color: var(--alert-ink); }
+
+  /* Ajustes Mobile */
+  @media (max-width: 768px) {
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .cta-banner { flex-direction: column; text-align: center; padding: 24px 20px; }
+    .cta-banner p { max-width: 100%; }
+    .cta-banner .btn { width: 100%; }
+  }
+  @media (max-width: 480px) {
+    .stat-grid { grid-template-columns: 1fr; }
+  }
+  
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand alert" style="margin-bottom: 8px;">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="dashboard-prestador.html">
+        <span class="nav-icon">▤</span> Visão Geral
+      </a>
+      <a class="nav-item" href="demandas-disponiveis.html">
+        <span class="nav-icon">🔍</span> Demandas Disponíveis
+      </a>
+      <a class="nav-item" href="minhas-propostas.html">
+        <span class="nav-icon">📨</span> Minhas Propostas
+      </a>
+      <a class="nav-item" href="ordens-servico.html">
+        <span class="nav-icon">🛠️</span> Ordens de Serviço
+      </a>
+      <a class="nav-item" href="historico-financeiro.html">
+        <span class="nav-icon">💳</span> Histórico Financeiro
+      </a>
+      <a class="nav-item" href="meu-perfil-prestador.html">
+        <span class="nav-icon">⚙️</span> Meus Dados
+      </a>
+      <div style="flex:1"></div>
+      <a class="nav-item" href="../index.html" style="color: var(--alert); margin-top: auto;">
+        <span class="nav-icon">🚪</span> Sair
+      </a>
+    </nav>
+   <div class="sidebar-foot">
+  <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">
+    Olá, Carlos
+  </div>
+
+  <div style="color: #8B8E96; font-size: 0.75rem; margin-bottom: 10px;">
+    Águas Claras, DF
+  </div>
+
+  <div
+  class="role-tag"
+  style="color: #FF3B30 !important; border-color: rgba(255, 59, 48, 0.45) !important;"
+>
+  conta prestador
+</div>
+  </aside>
+
+  <!-- Conteúdo Principal -->
+  <main class="main-content">
+    <div class="page-topbar">
+      <div>
+        <h1>Painel do Profissional</h1>
+        <div class="sub">Gerencie suas propostas e acompanhe seus serviços ativos.</div>
+      </div>
+      <a class="btn btn-alert" href="demandas-disponiveis.html" style="width: auto; display: inline-flex; align-items: center; gap: 8px;">
+        <span>🔍</span> Buscar Demandas
+      </a>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="stat-grid">
+      <div class="stat-card highlight">
+        <div class="stat-value" id="statDisponiveis">0</div>
+        <div class="stat-label">Oportunidades Próximas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statPropostas">0</div>
+        <div class="stat-label">Propostas Enviadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statAndamento">0</div>
+        <div class="stat-label">Serviços em Andamento</div>
+      </div>
+    </div>
+
+    <!-- Banner CTA -->
+    <div class="cta-banner">
+      <div>
+        <h3>Novas oportunidades na sua região</h3>
+        <p>Existem demandas de elétrica em aberto perto de você. Seja rápido: envie uma proposta antes que outro profissional feche o serviço.</p>
+      </div>
+      <a class="btn btn-alert" href="demandas-disponiveis.html">Ver demandas abertas</a>
+    </div>
+
+    <!-- Lista: Propostas Recentes -->
+    <div class="section-heading">
+      <h2>Suas propostas recentes</h2>
+      <a href="minhas-propostas.html">ver todas →</a>
+    </div>
+    <div id="propostasRecentes">
+      <!-- Preenchido via JS -->
+    </div>
+
+    <!-- Lista: Serviços em Andamento -->
+    <div class="section-heading">
+      <h2>Serviços em andamento</h2>
+      <a href="ordens-servico.html">ver todos →</a>
+    </div>
+    <div id="servicosAndamento">
+      <!-- Preenchido via JS -->
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ---- Dados simulados (substituir por fetch ao Supabase depois) ----
+  const PROPOSALS = [
+    { id: 1, demandTitle: "Instalação de chuveiro elétrico", client: "Maria Oliveira", loc: "Águas Claras", date: "Hoje", value: "R$ 120,00", status: "pendente", statusLabel: "Aguardando cliente" },
+    { id: 2, demandTitle: "Revisão de disjuntor", client: "João Pedro", loc: "Taguatinga", date: "Ontem", value: "R$ 90,00", status: "aceita", statusLabel: "Proposta aceita" },
+  ];
+
+  const ORDERS = [
+    { id: 1088, title: "Instalação elétrica — cômodo extra", client: "Maria Oliveira", loc: "Águas Claras", date: "28/08", value: "R$ 250,00", status: "andamento", statusLabel: "Em andamento" },
+  ];
+
+  // ---- Lógica de Estatísticas ----
+  document.getElementById('statDisponiveis').textContent = 6; // Mock
+  document.getElementById('statPropostas').textContent = PROPOSALS.filter(p => p.status === 'pendente').length;
+  document.getElementById('statAndamento').textContent = ORDERS.length;
+
+  // ---- Renderização: Propostas Recentes ----
+  const propostasEl = document.getElementById('propostasRecentes');
+  if (PROPOSALS.length === 0) {
+    propostasEl.innerHTML = `<div class="empty-state"><h3>Nenhuma proposta recente</h3><p>Busque demandas disponíveis e envie sua primeira proposta.</p></div>`;
+  } else {
+    PROPOSALS.forEach(p => {
+      const el = document.createElement('a');
+      el.href = `detalhe-proposta.html?id=${p.id}`;
+      el.className = 'list-row';
+      
+      // Mapeamento inteligente de classes de status
+      const statusClass = p.status === 'aceita' ? 'status-aceita' : (p.status === 'pendente' ? 'status-pendente' : 'status-recusada');
+
+      el.innerHTML = `
+        <div class="avatar avatar-md" style="background: var(--surface-soft);">📨</div>
+        <div class="list-row-main">
+          <div class="list-row-title">${p.demandTitle}</div>
+          <div class="list-row-sub">
+            <span>👤 ${p.client}</span>
+            <span class="sep">·</span>
+            <span>📍 ${p.loc}</span>
+            <span class="sep">·</span>
+            <span>📅 ${p.date}</span>
+          </div>
+        </div>
+        <div class="list-row-side">
+          <span class="status-badge ${statusClass}">${p.statusLabel}</span>
+          <span class="list-row-value">${p.value}</span>
+        </div>`;
+      propostasEl.appendChild(el);
+    });
+  }
+
+  // ---- Renderização: Serviços em Andamento ----
+  const servicosEl = document.getElementById('servicosAndamento');
+  if (ORDERS.length === 0) {
+    servicosEl.innerHTML = `<div class="empty-state"><h3>Nenhum serviço em andamento</h3><p>Seus serviços ativos aparecerão aqui assim que uma proposta for aceita.</p></div>`;
+  } else {
+    ORDERS.forEach(o => {
+      const el = document.createElement('a');
+      el.href = `acompanhar-servico-prestador.html?id=${o.id}`;
+      el.className = 'list-row';
+      el.innerHTML = `
+        <div class="avatar avatar-md" style="background: var(--accent-soft); color: var(--accent-ink); font-size: 1.2rem;">🛠️</div>
+        <div class="list-row-main">
+          <div class="list-row-title">${o.title}</div>
+          <div class="list-row-sub">
+            <span>👤 ${o.client}</span>
+            <span class="sep">·</span>
+            <span>📍 ${o.loc}</span>
+          </div>
+        </div>
+        <div class="list-row-side">
+          <span class="status-badge status-andamento">${o.statusLabel}</span>
+          <span class="list-row-value">${o.value}</span>
+          <span class="list-row-date">Prev: ${o.date}</span>
+        </div>`;
+      servicosEl.appendChild(el);
+    });
+  }
+</script>
+</body>
+</html>

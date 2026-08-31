@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meus Dados · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .form-wrap{ max-width:520px; }
+  .cep-status{ display:flex; align-items:center; gap:6px; margin-top:8px; font-size:0.78rem; font-weight:600; }
+  .cep-status.ok{ color:var(--accent-ink); }
+  .cep-status.err{ color:var(--alert); }
+  .cep-status.loading{ color:var(--ink-faint); }
+  .save-btn{ width:auto; padding:14px 24px; margin-top:6px; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-cliente.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="minhas-demandas.html"><span class="nav-icon">✉</span> Minhas Demandas</a>
+      <a class="nav-item" href="servicos-contratados.html"><span class="nav-icon">🛠️</span> Serviços Contratados</a>
+      <a class="nav-item active" href="meu-perfil-cliente.html"><span class="nav-icon">⚙️</span> Meus Dados</a>
+      <a class="nav-item" href="../index.html" style="color:var(--alert);"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      Olá, Maria<br>Águas Claras, DF
+      <div class="role-tag">conta cliente</div>
+    </div>
+  </aside>
+
+  <main class="main-content form-wrap">
+    <div class="page-topbar">
+      <div>
+        <h1>Meus Dados</h1>
+        <div class="sub">Usados para preencher suas demandas automaticamente.</div>
+      </div>
+    </div>
+
+    <form id="profileForm" style="margin-top:22px;">
+      <div class="card">
+        <div class="card-label"><span class="dot"></span>Dados cadastrais</div>
+        <div class="field">
+          <label for="nome">Nome completo</label>
+          <input type="text" id="nome" value="Maria Oliveira" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="whatsapp">WhatsApp</label>
+            <input type="tel" id="whatsapp" value="(61) 99999-9999" required>
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" value="maria@email.com" disabled title="E-mail não pode ser alterado">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><span class="dot"></span>Endereço padrão</div>
+        <p class="card-note">Usado para preencher automaticamente novas demandas.</p>
+
+        <div class="field">
+          <label for="cep">CEP</label>
+          <input type="text" id="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" autocomplete="postal-code" required>
+          <div class="cep-status" id="cepStatus"></div>
+        </div>
+
+        <div class="field-row" style="margin-top:16px;">
+          <div class="field">
+            <label for="cidade">Cidade</label>
+            <input type="text" id="cidade" value="Brasília" required>
+          </div>
+          <div class="field">
+            <label for="bairro">Bairro principal</label>
+            <input type="text" id="bairro" value="Águas Claras" required>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:16px;">
+          <label for="complemento">Ponto de referência (opcional)</label>
+          <input type="text" id="complemento" placeholder="Ex: Próximo ao shopping, bloco B...">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-accent save-btn" id="saveBtn">Salvar alterações</button>
+    </form>
+
+    <div class="info-box" style="margin-top:16px;">
+      <div><b>Seus dados estão seguros.</b> Seu endereço e telefone só são revelados ao prestador depois que você aceita a proposta dele e a ordem de serviço é gerada.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.getElementById('profileForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('saveBtn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Salvando...';
+    btn.disabled = true;
+
+    // Lógica Supabase: update na tabela 'clients' ou 'users'
+    setTimeout(() => {
+      btn.textContent = 'Salvo ✓';
+      setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 1400);
+    }, 500);
+  });
+
+  const cepInput = document.getElementById("cep");
+  const cidadeInput = document.getElementById("cidade");
+  const bairroInput = document.getElementById("bairro");
+  const cepStatus = document.getElementById("cepStatus");
+
+  cepInput.addEventListener("input", function () {
+    let cep = this.value.replace(/\D/g, "");
+    if (cep.length > 5) cep = cep.substring(0, 5) + "-" + cep.substring(5, 8);
+    this.value = cep;
+  });
+
+  cepInput.addEventListener("blur", async function () {
+    const cep = this.value.replace(/\D/g, "");
+    if (cep.length !== 8) return;
+
+    cepStatus.textContent = 'Buscando endereço...';
+    cepStatus.className = 'cep-status loading';
+
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        cepStatus.textContent = 'CEP não encontrado';
+        cepStatus.className = 'cep-status err';
+        return;
+      }
+
+      cidadeInput.value = data.localidade || "";
+      bairroInput.value = data.bairro || "";
+      cepStatus.textContent = `${data.localidade || ''} - ${data.uf || ''}`;
+      cepStatus.className = 'cep-status ok';
+
+    } catch (error) {
+      console.error("Erro ao consultar CEP:", error);
+      cepStatus.textContent = 'Erro ao buscar o CEP. Tente novamente.';
+      cepStatus.className = 'cep-status err';
+    }
+  });
+</script>
+</body>
+</html>

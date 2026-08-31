@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criar conta de prestador · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<style>
+  :root{
+    --bg-app:#0B0B0D; --bg-elevated:#1B1C1F; --surface:#FFFFFF; --surface-soft:#F4F4F2;
+    --ink:#101113; --ink-soft:#6B6E76; --ink-faint:#9A9CA3;
+    --accent:#05C167; --accent-ink:#04572C; --accent-soft:#E1F9EC;
+    --alert:#FF3B30; --alert-ink:#8C1810; --alert-soft:#FFE9E7;
+    --border:#E7E7E4; --radius-lg:20px; --radius-md:14px; --radius-sm:10px;
+    --font-display:'Sora', sans-serif; --font-body:'Inter', sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; }
+  body{ background:var(--surface-soft); color:var(--ink); font-family:var(--font-body); -webkit-font-smoothing:antialiased; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; }
+
+  .phone{ max-width:520px; margin:0 auto; min-height:100vh; background:var(--surface-soft); }
+
+  header{
+    background:var(--bg-app); color:#fff; padding:20px 24px 26px; border-radius:0 0 var(--radius-lg) var(--radius-lg);
+  }
+  .header-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .brand{ font-family:var(--font-display); font-weight:800; font-size:1rem; }
+  .brand span{ color:var(--alert); }
+  .back{ font-size:0.78rem; color:#B6B8BE; border:1px solid rgba(255,255,255,0.18); padding:6px 12px; border-radius:100px; }
+
+  .type-toggle{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .type-card{
+    background:var(--bg-elevated); border:1.5px solid transparent; border-radius:var(--radius-md);
+    padding:14px 12px; text-align:center; cursor:pointer; transition:border-color .15s, background .15s;
+  }
+  .type-card .icon{ font-size:1.3rem; margin-bottom:6px; }
+  .type-card .name{ font-family:var(--font-display); font-weight:700; font-size:0.85rem; color:#fff; }
+  .type-card.selected{ border-color:var(--alert); background:rgba(255,59,48,0.14); }
+
+  .wrap{ padding:24px 22px 60px; }
+  .intro{ margin-bottom:20px; }
+  .intro h1{ font-family:var(--font-display); font-size:1.35rem; font-weight:700; margin:0 0 6px; }
+  .intro p{ font-size:0.85rem; color:var(--ink-soft); margin:0; }
+
+  .card{ background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px; margin-bottom:14px; }
+  .card-label{ font-family:var(--font-display); font-size:0.85rem; font-weight:700; color:var(--ink); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .card-label .dot{ width:7px; height:7px; border-radius:50%; background:var(--alert); }
+
+  .field{ margin-bottom:16px; }
+  .field:last-child{ margin-bottom:0; }
+  label{ display:block; font-size:0.78rem; font-weight:600; color:var(--ink); margin-bottom:7px; }
+  input{
+    width:100%; font-family:var(--font-body); font-size:0.92rem; color:var(--ink);
+    background:var(--surface-soft); border:1.5px solid transparent; border-radius:var(--radius-sm);
+    padding:13px 14px; outline:none; transition:border-color .15s ease, background .15s ease;
+  }
+  input:focus{ border-color:var(--ink); background:var(--surface); }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+  .chip-select{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip-option{
+    font-size:0.82rem; padding:9px 15px; border:1.5px solid var(--border); background:var(--surface-soft);
+    border-radius:100px; color:var(--ink-soft); font-weight:600; transition:.15s;
+  }
+  .chip-option.selected{ background:var(--alert); color:#fff; border-color:var(--alert); }
+
+  .create-btn{
+    width:100%; background:var(--ink); color:#fff; border:none; padding:16px; margin-top:6px;
+    font-family:var(--font-display); font-weight:700; font-size:0.95rem; border-radius:var(--radius-sm);
+    transition:opacity .15s;
+  }
+  .create-btn:active{ opacity:0.85; }
+  .create-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+  .terms{ font-size:0.75rem; color:var(--ink-faint); text-align:center; margin-top:14px; }
+
+  .login-note{ text-align:center; font-size:0.85rem; color:var(--ink-soft); margin-top:22px; }
+  .login-note a{ color:var(--ink); font-weight:700; }
+
+  @media (max-width:480px){ .field-row{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <header>
+    <div class="header-top">
+      <div class="brand">OS<span>Rápida</span></div>
+      <a class="back" href="index.html">já tenho conta</a>
+    </div>
+    <div class="type-toggle">
+      <a href="cadastro-cliente.html" class="type-card">
+        <div class="icon">🧑</div>
+        <div class="name">Sou cliente</div>
+      </a>
+      <div class="type-card selected">
+        <div class="icon">🛠️</div>
+        <div class="name">Sou prestador</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="intro">
+      <h1>Criar conta de prestador</h1>
+      <p>Grátis para começar. Leva menos de 2 minutos.</p>
+    </div>
+
+    <form id="cadastroPrestadorForm">
+      <div class="card">
+        <div class="card-label"><span class="dot"></span>Seus dados</div>
+        <div class="field">
+          <label for="nome">Nome completo</label>
+          <input type="text" id="nome" placeholder="Ex: Carlos Silva" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="whatsapp">WhatsApp</label>
+            <input type="tel" id="whatsapp" placeholder="(61) 90000-0000" required>
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" placeholder="voce@email.com" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="senha">Criar senha</label>
+          <input type="password" id="senha" placeholder="mínimo 8 caracteres" minlength="8" required>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><span class="dot"></span>Sobre seu trabalho</div>
+        <div class="field">
+          <label>Tipos de serviço que você presta</label>
+          <div class="chip-select" id="chipContainer">
+            <span class="chip-option selected">Elétrica</span>
+            <span class="chip-option">Hidráulica</span>
+            <span class="chip-option">Ar-condicionado</span>
+            <span class="chip-option">Pintura</span>
+            <span class="chip-option">Montagem</span>
+            <span class="chip-option">+ outro</span>
+          </div>
+        </div>
+        <div class="field-row" style="margin-top:16px;">
+          <div class="field">
+            <label for="cidade">Cidade</label>
+            <input type="text" id="cidade" value="Brasília">
+          </div>
+          <div class="field">
+            <label for="bairro">Região que atende</label>
+            <input type="text" id="bairro" placeholder="Ex: Asa Norte, Sudoeste...">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="create-btn">Criar conta grátis</button>
+      <div class="terms">ao continuar, você concorda com os termos do OS Rápida</div>
+    </form>
+
+    <div class="login-note">Já tem conta? <a href="index.html">Entrar</a></div>
+  </div>
+</div>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-cliente.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+  // Carregar tipos de serviço do banco
+  async function carregarServicos() {
+    const { data } = await supabase
+      .from('service_types')
+      .select('id, nome, icone')
+      .order('nome');
+
+    const container = document.getElementById('chipContainer');
+    container.innerHTML = '';
+
+    data.forEach(servico => {
+      const chip = document.createElement('span');
+      chip.className = 'chip-option';
+      chip.dataset.id = servico.id;
+      chip.textContent = `${servico.icone} ${servico.nome}`;
+      chip.onclick = () => chip.classList.toggle('selected');
+      container.appendChild(chip);
+    });
+  }
+
+  carregarServicos();
+
+  // Submit do formulário
+  document.getElementById('cadastroPrestadorForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const servicosSelecionados = Array.from(
+      document.querySelectorAll('.chip-option.selected')
+    ).map(chip => chip.dataset.id);
+
+    if (servicosSelecionados.length === 0) {
+      alert('Selecione pelo menos um tipo de serviço');
+      return;
+    }
+
+    const dados = {
+      nome: document.getElementById('nome').value.trim(),
+      whatsapp: document.getElementById('whatsapp').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('senha').value,
+      cidade: document.getElementById('cidade').value.trim(),
+      bairro: document.getElementById('bairro').value.trim(),
+      tipo: 'prestador',
+      service_types: servicosSelecionados
+    };
+
+    const btn = e.target.querySelector('.create-btn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Criando conta...';
+    btn.disabled = true;
+
+    const result = await Auth.register(dados);
+
+    if (result.success) {
+      window.location.href = 'prestador/dashboard.html';
+    } else {
+      alert('Erro: ' + result.error);
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

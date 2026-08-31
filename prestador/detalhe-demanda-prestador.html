@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enviar proposta · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .wrap{ padding:24px 22px 60px; }
+  .success-state{ text-align:center; padding:20px 4px 4px; display:none; }
+  .success-state.show{ display:block; }
+  .check-circle{
+    width:56px; height:56px; border-radius:50%; background:var(--accent-soft); margin:0 auto 16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .check-circle svg{ width:26px; height:26px; }
+  .check-circle path{ stroke:var(--accent-ink); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .success-state h3{ font-size:1.1rem; margin:0 0 6px; }
+  .success-state p{ font-size:0.85rem; color:var(--ink-soft); margin:0 0 20px; }
+</style>
+</head>
+<body>
+
+<div class="container-mobile">
+  <header class="header-dark">
+    <div class="header-top">
+      <div class="brand alert">OS<span>Rápida</span></div>
+      <a class="pill-link" href="demandas-disponiveis.html">← Voltar</a>
+    </div>
+    <h2 style="font-size:1.1rem; margin:0;">Instalação de chuveiro elétrico</h2>
+  </header>
+
+  <div class="wrap">
+    <div class="card" id="detailCard">
+      <div class="card-label alert"><span class="dot"></span>Detalhes da demanda</div>
+      <div class="detail-lines">
+        <div class="detail-line"><span>Categoria</span><span>Elétrica</span></div>
+        <div class="detail-line"><span>Local</span><span>Águas Claras</span></div>
+        <div class="detail-line"><span>Publicada</span><span>27/08 · há 2 dias</span></div>
+        <div class="detail-line"><span>Propostas até agora</span><span>3</span></div>
+      </div>
+      <p style="font-size:0.85rem; color:var(--ink-soft); line-height:1.5; margin:16px 0 0;">
+        "Chuveiro elétrico novo, só falta instalar. Tenho o material, preciso de alguém disponível essa semana."
+      </p>
+    </div>
+
+    <form id="propostaForm">
+      <div class="card">
+        <div class="card-label alert"><span class="dot"></span>Sua proposta</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="valor">Valor (R$)</label>
+            <input type="number" id="valor" placeholder="120" min="1" required>
+          </div>
+          <div class="field">
+            <label for="prazo">Prazo</label>
+            <select id="prazo" required>
+              <option value="">Selecione...</option>
+              <option value="hoje">Ainda hoje</option>
+              <option value="1h">1 hora</option>
+              <option value="2h">2 horas</option>
+              <option value="amanha">Amanhã</option>
+              <option value="semana">Essa semana</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="mensagem">Mensagem para o cliente</label>
+          <textarea id="mensagem" placeholder="Ex: Consigo ir aí amanhã às 14h, já levo o material necessário..." required></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-alert" id="sendBtn">Enviar proposta</button>
+    </form>
+
+    <div class="success-state" id="successState">
+      <div class="check-circle"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+      <h3>Proposta enviada!</h3>
+      <p>O cliente vai receber sua proposta e pode entrar em contato a qualquer momento.</p>
+      <a class="btn btn-dark" href="minhas-propostas.html">Ver minhas propostas</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('propostaForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const btn = document.getElementById('sendBtn');
+    btn.textContent = 'Enviando...';
+    btn.disabled = true;
+
+    // Lógica Supabase: insert em 'proposals' vinculado a essa demand e ao prestador logado
+    setTimeout(() => {
+      document.getElementById('detailCard').style.display = 'none';
+      document.getElementById('propostaForm').style.display = 'none';
+      document.getElementById('successState').classList.add('show');
+    }, 500);
+  });
+</script>
+</body>
+</html>

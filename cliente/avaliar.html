@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliar serviço · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .wrap{ padding:24px 22px 60px; }
+  .provider-strip{
+    display:flex; align-items:center; gap:12px; text-align:left; margin-bottom:22px;
+    padding:14px; background:var(--surface); border-radius:var(--radius-md);
+  }
+  .provider-info .name{ font-weight:700; font-size:0.92rem; }
+  .provider-info .sub{ font-size:0.78rem; color:var(--ink-soft); }
+
+  .tag-select{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:18px 0 6px; }
+
+  .success-state{ text-align:center; padding:30px 4px 4px; display:none; }
+  .success-state.show{ display:block; }
+  .check-circle{
+    width:56px; height:56px; border-radius:50%; background:var(--accent-soft); margin:0 auto 16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .check-circle svg{ width:26px; height:26px; }
+  .check-circle path{ stroke:var(--accent-ink); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+</style>
+</head>
+<body>
+
+<div class="container-mobile">
+  <header class="header-dark">
+    <div class="header-top">
+      <div class="brand">OS<span>Rápida</span></div>
+      <a class="pill-link" href="servicos-contratados.html">← Voltar</a>
+    </div>
+    <h2 style="font-size:1.1rem; margin:0;">Avaliar serviço</h2>
+  </header>
+
+  <div class="wrap">
+    <div id="rateView">
+      <div class="provider-strip">
+        <div class="avatar avatar-md">👨‍🔧</div>
+        <div class="provider-info">
+          <div class="name">Carlos Elétrica</div>
+          <div class="sub">Troca de resistência do chuveiro · OS #950</div>
+        </div>
+      </div>
+
+      <div class="card text-center">
+        <p style="font-size:0.9rem; color:var(--ink-soft); margin:0 0 4px;">Como foi o atendimento do Carlos?</p>
+        <div class="star-rating" id="stars">
+          <span class="star" data-value="1">★</span>
+          <span class="star" data-value="2">★</span>
+          <span class="star" data-value="3">★</span>
+          <span class="star" data-value="4">★</span>
+          <span class="star" data-value="5">★</span>
+        </div>
+        <div class="rating-label" id="ratingLabel"></div>
+
+        <div class="tag-select" id="tagSelect">
+          <span class="chip" data-tag="Pontual">Pontual</span>
+          <span class="chip" data-tag="Educado">Educado</span>
+          <span class="chip" data-tag="Preço justo">Preço justo</span>
+          <span class="chip" data-tag="Serviço limpo">Serviço limpo</span>
+          <span class="chip" data-tag="Resolveu rápido">Resolveu rápido</span>
+        </div>
+
+        <div class="field" style="margin-top:18px; text-align:left;">
+          <label for="comentario">Conte como foi (opcional)</label>
+          <textarea id="comentario" placeholder="O que você achou do serviço?"></textarea>
+        </div>
+      </div>
+
+      <button class="btn btn-accent" id="sendBtn" style="margin-top:14px;" disabled onclick="enviarAvaliacao()">Enviar avaliação</button>
+    </div>
+
+    <div class="success-state" id="successState">
+      <div class="check-circle"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+      <h3 style="font-size:1.1rem; margin:0 0 6px;">Obrigado pela avaliação!</h3>
+      <p style="font-size:0.85rem; color:var(--ink-soft); margin:0 0 20px;">Isso ajuda outros clientes a escolherem o prestador certo.</p>
+      <a class="btn btn-dark" href="servicos-contratados.html">Voltar aos serviços</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  let notaSelecionada = 0;
+  const LABELS = { 1: "Muito ruim", 2: "Ruim", 3: "Ok", 4: "Bom", 5: "Excelente" };
+  const stars = document.querySelectorAll("#stars .star");
+  const label = document.getElementById("ratingLabel");
+  const sendBtn = document.getElementById("sendBtn");
+
+  function pintarEstrelas(valor){
+    stars.forEach(s => s.classList.toggle("filled", Number(s.dataset.value) <= valor));
+  }
+
+  stars.forEach(star => {
+    star.addEventListener("mouseenter", () => pintarEstrelas(Number(star.dataset.value)));
+    star.addEventListener("mouseleave", () => pintarEstrelas(notaSelecionada));
+    star.addEventListener("click", () => {
+      notaSelecionada = Number(star.dataset.value);
+      pintarEstrelas(notaSelecionada);
+      label.textContent = LABELS[notaSelecionada];
+      sendBtn.disabled = false;
+    });
+  });
+
+  document.querySelectorAll("#tagSelect .chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      chip.classList.toggle("selected");
+      chip.classList.toggle("accent");
+    });
+  });
+
+  function enviarAvaliacao(){
+    sendBtn.textContent = "Enviando...";
+    sendBtn.disabled = true;
+
+    // Lógica Supabase: insert em 'reviews' vinculado à order, nota, tags e comentário
+    setTimeout(() => {
+      document.getElementById("rateView").style.display = "none";
+      document.getElementById("successState").classList.add("show");
+    }, 500);
+  }
+</script>
+</body>
+</html>

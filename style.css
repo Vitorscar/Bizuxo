@@ -1,0 +1,246 @@
+/* ============================================================
+   OS Rápida — Design System
+   Tokens e componentes compartilhados por todas as páginas.
+   Inclua depois da fonte, em todo HTML:
+   <link rel="stylesheet" href="style.css">
+   ============================================================ */
+
+:root{
+  /* cores base */
+  --bg-app:#0B0B0D;
+  --bg-elevated:#1B1C1F;
+  --surface:#FFFFFF;
+  --surface-soft:#F4F4F2;
+  --ink:#101113;
+  --ink-soft:#6B6E76;
+  --ink-faint:#9A9CA3;
+  --border:#E7E7E4;
+
+  /* cor de marca: cliente = verde, prestador = vermelho */
+  --accent:#05C167;
+  --accent-ink:#04572C;
+  --accent-soft:#E1F9EC;
+  --alert:#FF3B30;
+  --alert-ink:#8C1810;
+  --alert-soft:#FFE9E7;
+
+  /* status de agendamento (usado em listas de OS) */
+  --amber:#B8790A;
+  --amber-soft:#FFF3DC;
+
+  /* raios e tipografia */
+  --radius-lg:20px;
+  --radius-md:14px;
+  --radius-sm:10px;
+  --font-display:'Sora', sans-serif;
+  --font-body:'Inter', sans-serif;
+}
+
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--surface-soft); color:var(--ink); font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+}
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; cursor:pointer; }
+h1,h2,h3{ font-family:var(--font-display); margin:0; }
+
+/* ---------- layout containers ---------- */
+.container-mobile{ max-width:520px; margin:0 auto; min-height:100vh; background:var(--surface-soft); }
+.container-card{
+  display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px;
+  background:var(--surface-soft);
+}
+
+/* ---------- header escuro (topo das telas mobile) ---------- */
+.header-dark{
+  background:var(--bg-app); color:#fff; padding:20px 24px 26px;
+  border-radius:0 0 var(--radius-lg) var(--radius-lg);
+}
+.header-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.brand{ font-family:var(--font-display); font-weight:800; font-size:1rem; }
+.brand span{ color:var(--accent); }
+.brand.alert span{ color:var(--alert); }
+.pill-link{
+  font-size:0.78rem; color:#B6B8BE; border:1px solid rgba(255,255,255,0.18);
+  padding:6px 12px; border-radius:100px; background:none;
+}
+
+/* progresso em etapas (steps) */
+.step-track{ display:flex; gap:6px; margin-top:14px; }
+.step-dot{ flex:1; height:4px; border-radius:100px; background:rgba(255,255,255,0.16); }
+.step-dot.done{ background:var(--accent); }
+
+/* ---------- cartões ---------- */
+.card{ background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px; }
+.card + .card{ margin-top:14px; }
+.card-label{
+  font-family:var(--font-display); font-size:0.85rem; font-weight:700; color:var(--ink);
+  margin-bottom:16px; display:flex; align-items:center; gap:8px;
+}
+.card-label .dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); }
+.card-label.alert .dot{ background:var(--alert); }
+.card-note{ font-size:0.8rem; color:var(--ink-soft); line-height:1.4; margin:-8px 0 16px; }
+
+/* ---------- formulários ---------- */
+.field{ margin-bottom:16px; }
+.field:last-child{ margin-bottom:0; }
+.field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+label{ display:block; font-size:0.78rem; font-weight:600; color:var(--ink); margin-bottom:7px; }
+input, select, textarea{
+  width:100%; font-family:var(--font-body); font-size:0.92rem; color:var(--ink);
+  background:var(--surface-soft); border:1.5px solid transparent; border-radius:var(--radius-sm);
+  padding:13px 14px; outline:none; transition:border-color .15s ease, background .15s ease;
+}
+input:focus, select:focus, textarea:focus{ border-color:var(--ink); background:var(--surface); }
+textarea{ min-height:100px; resize:vertical; font-family:var(--font-body); }
+.helper{ font-size:0.76rem; color:var(--ink-faint); margin-top:6px; }
+@media (max-width:480px){ .field-row{ grid-template-columns:1fr; } }
+
+/* ---------- chips (seleção única/múltipla) ---------- */
+.chip-select{ display:flex; gap:8px; flex-wrap:wrap; }
+.chip{
+  font-size:0.82rem; padding:9px 15px; border:1.5px solid var(--border); background:var(--surface-soft);
+  border-radius:100px; color:var(--ink-soft); font-weight:600; transition:.15s;
+}
+.chip.selected{ background:var(--ink); color:#fff; border-color:var(--ink); }
+.chip.selected.accent{ background:var(--accent); border-color:var(--accent); }
+.chip.selected.alert{ background:var(--alert); border-color:var(--alert); }
+
+/* ---------- botões ---------- */
+.btn{
+  width:100%; border:none; padding:15px; font-family:var(--font-display); font-weight:700;
+  font-size:0.93rem; border-radius:var(--radius-sm); transition:opacity .15s, background .15s;
+}
+.btn:active{ opacity:0.85; }
+.btn:disabled{ opacity:0.55; cursor:not-allowed; }
+.btn-dark{ background:var(--ink); color:#fff; }
+.btn-accent{ background:var(--accent); color:#fff; }
+.btn-alert{ background:var(--alert); color:#fff; }
+.btn-outline{ background:transparent; border:1.5px solid var(--border); color:var(--ink); }
+.btn-ghost{ width:auto; background:none; color:var(--ink-soft); font-family:var(--font-body); font-weight:600; font-size:0.85rem; padding:8px; }
+
+/* ---------- avatares ---------- */
+.avatar{
+  border-radius:50%; background:var(--surface-soft); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.avatar-sm{ width:34px; height:34px; font-size:1rem; }
+.avatar-md{ width:44px; height:44px; font-size:1.3rem; }
+.avatar-lg{ width:56px; height:56px; font-size:1.6rem; }
+
+/* ---------- badges de status ---------- */
+.status-badge{
+  display:inline-flex; align-items:center; gap:6px; font-size:0.72rem; font-weight:700;
+  padding:5px 11px; border-radius:100px; white-space:nowrap;
+}
+.status-agendado{ background:var(--amber-soft); color:var(--amber); }
+.status-andamento{ background:var(--accent-soft); color:var(--accent-ink); }
+.status-concluido{ background:var(--surface-soft); color:var(--ink-soft); }
+.status-cancelado{ background:var(--alert-soft); color:var(--alert-ink); }
+
+/* ---------- linhas de detalhe (resumo/recibo) ---------- */
+.detail-lines{ border-top:1px solid var(--border); padding-top:14px; }
+.detail-line{ display:flex; justify-content:space-between; padding:7px 0; font-size:0.88rem; }
+.detail-line span:first-child{ color:var(--ink-soft); }
+.detail-line span:last-child{ font-weight:600; text-align:right; }
+
+/* ---------- shell de dashboard (sidebar + conteúdo) ---------- */
+.app-shell{ display:grid; grid-template-columns:224px 1fr; min-height:100vh; }
+.sidebar{
+  background:var(--bg-app); color:#fff; padding:28px 20px; display:flex; flex-direction:column; gap:36px;
+}
+.sidebar-nav{ display:flex; flex-direction:column; gap:2px; }
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radius-sm);
+  font-size:0.9rem; color:#9A9CA3; border-left:2px solid transparent; transition:.15s;
+}
+.nav-item:hover{ color:#fff; background:rgba(255,255,255,0.06); }
+.nav-item.active{ color:#fff; background:rgba(5,193,103,0.14); border-left:2px solid var(--accent); font-weight:600; }
+.nav-icon{ width:16px; text-align:center; font-size:0.85rem; }
+.sidebar-foot{
+  margin-top:auto; padding-top:20px; border-top:1px solid rgba(255,255,255,0.12);
+  font-size:0.75rem; color:#8B8E96; line-height:1.5;
+}
+.role-tag{
+  display:inline-block; margin-top:8px; font-size:0.7rem; color:var(--accent); border:1px dashed rgba(5,193,103,0.45);
+  padding:3px 8px; border-radius:100px;
+}
+
+.main-content{ padding:30px 40px 60px; max-width:980px; }
+.page-topbar{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px; flex-wrap:wrap; gap:16px; }
+.page-topbar h1{ font-size:1.6rem; font-weight:700; margin:0 0 2px; letter-spacing:-0.01em; }
+.page-topbar .sub{ font-size:0.85rem; color:var(--ink-soft); }
+
+.toolbar{ display:flex; gap:12px; margin:24px 0 18px; flex-wrap:wrap; align-items:center; }
+.search-input{
+  flex:1; min-width:200px; font-family:var(--font-body); font-size:0.88rem; padding:12px 14px;
+  border:1.5px solid transparent; border-radius:var(--radius-sm); background:var(--surface); outline:none;
+  box-shadow:0 1px 2px rgba(16,17,19,0.04);
+}
+.search-input:focus{ border-color:var(--ink); }
+
+/* ---------- linhas de lista (histórico de OS, propostas etc.) ---------- */
+.list-row{
+  display:flex; align-items:center; gap:14px; background:var(--surface); border-radius:var(--radius-md);
+  padding:14px 16px; margin-bottom:10px; transition:box-shadow .15s;
+}
+.list-row:hover{ box-shadow:0 2px 14px rgba(16,17,19,0.06); }
+.list-row-main{ flex:1; min-width:0; }
+.list-row-title{ font-family:var(--font-display); font-weight:700; font-size:0.94rem; margin-bottom:4px; }
+.list-row-sub{ display:flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--ink-soft); flex-wrap:wrap; }
+.list-row-sub .sep{ color:var(--border); }
+.list-row-side{ text-align:right; flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+.list-row-value{ font-family:var(--font-display); font-weight:700; font-size:0.92rem; }
+.list-row-date{ font-size:0.76rem; color:var(--ink-faint); }
+.list-row-action{ font-size:0.78rem; font-weight:700; color:var(--ink); }
+
+.empty-state{ text-align:center; padding:60px 20px; color:var(--ink-soft); }
+.empty-state h3{ font-size:1.15rem; color:var(--ink); margin-bottom:8px; }
+
+@media (max-width:768px){
+  .app-shell{ grid-template-columns:1fr; }
+  .sidebar{ flex-direction:row; align-items:center; padding:16px 18px; gap:20px; overflow-x:auto; }
+  .sidebar-nav{ flex-direction:row; gap:4px; }
+  .sidebar-foot{ display:none; }
+  .main-content{ padding:22px 18px 50px; }
+  .list-row{ flex-wrap:wrap; }
+  .list-row-side{ align-items:flex-start; flex-direction:row; gap:10px; width:100%; margin-top:6px; }
+}
+
+/* ---------- utilitários ---------- */
+.info-box .icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-0 {
+  margin-top: 0;
+}
+/* Centraliza o botão Salvar alterações */
+.save-btn {
+  display: block;
+  margin: 20px auto 0;
+}
+
+/* Texto de segurança menor */
+.info-box {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.info-box b {
+  font-size: 12px;
+}
+
+/* ---------- identificação do tipo de conta ---------- */
+
+.sidebar.prestador .role-tag {
+  color: #FF3B30 !important;
+  border-color: rgba(255, 59, 48, 0.45) !important;
+}

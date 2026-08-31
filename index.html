@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  :root{
+    --bg-app:#0B0B0D; --bg-elevated:#1B1C1F; --surface:#FFFFFF; --surface-soft:#F4F4F2;
+    --ink:#101113; --ink-soft:#6B6E76; --ink-faint:#9A9CA3;
+    --accent:#05C167; --accent-ink:#04572C; --accent-soft:#E1F9EC;
+    --alert:#FF3B30; --alert-ink:#8C1810; --alert-soft:#FFE9E7;
+    --border:#E7E7E4; --radius-lg:20px; --radius-md:14px; --radius-sm:10px;
+    --font-display:'Sora', sans-serif; --font-body:'Inter', sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; height:100%; }
+  body{ font-family:var(--font-body); color:var(--ink); -webkit-font-smoothing:antialiased; background:var(--surface-soft); }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; }
+
+  .screen{ display:grid; grid-template-columns:1fr 1fr; min-height:100vh; }
+
+  /* ---------- LEFT — brand panel ---------- */
+  .panel{
+    background:var(--bg-app); color:#fff; padding:56px 52px;
+    display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;
+  }
+  .panel-content{ position:relative; z-index:1; }
+  .brand{ font-family:var(--font-display); font-weight:800; font-size:1.15rem; margin-bottom:64px; }
+  .brand span{ color:var(--accent); }
+  .panel h1{
+    font-family:var(--font-display); font-size:2.3rem; font-weight:700; line-height:1.2;
+    letter-spacing:-0.01em; max-width:14ch; margin:0 0 16px;
+  }
+  .panel h1 em{ color:var(--accent); font-style:normal; }
+  .panel p{ font-size:0.95rem; color:#B6B8BE; max-width:36ch; line-height:1.6; }
+
+  .stat-row{ display:flex; gap:36px; position:relative; z-index:1; }
+  .stat-row .stat b{ display:block; font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
+  .stat-row .stat span{ font-size:0.75rem; color:#8B8E96; }
+
+  /* ---------- RIGHT — form ---------- */
+  .form-col{ background:var(--surface-soft); display:flex; align-items:center; justify-content:center; padding:40px; }
+  .login-card{
+    width:100%; max-width:380px; background:var(--surface); border-radius:var(--radius-lg);
+    box-shadow:0 2px 24px rgba(16,17,19,0.06); padding:30px 28px 28px;
+  }
+
+  /* Role Switcher — pill deslizante */
+  .role-switch{
+    position:relative; display:grid; grid-template-columns:1fr 1fr; background:var(--surface-soft);
+    border-radius:100px; padding:4px; margin-bottom:24px; height:44px;
+  }
+  .role-pill{
+    position:absolute; top:4px; left:4px; width:calc(50% - 4px); height:calc(100% - 8px);
+    background:var(--ink); border-radius:100px; transition:transform .2s ease, background .2s ease; z-index:0;
+  }
+  .role-pill.prestador{ transform:translateX(100%); background:var(--alert-ink); }
+  .role-btn{
+    position:relative; z-index:1; background:transparent; border:none; font-size:0.83rem; font-weight:600;
+    color:var(--ink-soft); transition:color .2s;
+  }
+  .role-btn.active{ color:#fff; }
+
+  .card-body h2{ font-family:var(--font-display); font-size:1.3rem; font-weight:700; margin:0 0 5px; letter-spacing:-0.01em; }
+  .card-body .sub{ font-size:0.83rem; color:var(--ink-soft); margin-bottom:24px; line-height:1.4; }
+
+  .field{ margin-bottom:14px; }
+  label{ display:block; font-size:0.78rem; font-weight:600; color:var(--ink); margin-bottom:7px; }
+  input{
+    width:100%; font-family:var(--font-body); font-size:0.92rem; color:var(--ink);
+    background:var(--surface-soft); border:1.5px solid transparent; border-radius:var(--radius-sm);
+    padding:13px 14px; outline:none; transition:border-color .15s ease, background .15s ease;
+  }
+  input:focus{ border-color:var(--ink); background:var(--surface); }
+
+  .row-between{ display:flex; justify-content:space-between; align-items:center; margin:2px 0 22px; }
+  .forgot{ font-size:0.8rem; color:var(--ink-soft); font-weight:600; }
+  .remember{ display:flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--ink-soft); }
+
+  .enter-btn{
+    width:100%; background:var(--accent); color:#fff; border:none; padding:15px;
+    font-family:var(--font-display); font-weight:700; font-size:0.92rem; border-radius:var(--radius-sm);
+    transition:background .15s, opacity .15s;
+  }
+  .enter-btn.prestador{ background:var(--alert); }
+  .enter-btn:active{ opacity:0.85; }
+  .enter-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+
+  .signup-note{ text-align:center; font-size:0.85rem; color:var(--ink-soft); margin-top:20px; }
+  .signup-note a{ color:var(--ink); font-weight:700; }
+
+  @media (max-width:840px){
+    .screen{ grid-template-columns:1fr; }
+    .panel{ padding:40px 26px; min-height:auto; border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+    .panel h1{ font-size:1.8rem; }
+    .stat-row{ display:none; }
+    .form-col{ padding:28px 18px 48px; background:var(--bg-app); }
+    .login-card{ box-shadow:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="screen">
+  <!-- LADO ESQUERDO -->
+  <div class="panel">
+    <div class="panel-content">
+      <div class="brand">OS<span>Rápida</span></div>
+      <h1>Conectando quem precisa a quem <em>resolve</em>.</h1>
+      <p>Publique demandas, receba propostas e gerencie suas ordens de serviço em um só lugar.</p>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><b>2.400+</b><span>prestadores ativos</span></div>
+      <div class="stat"><b>18k</b><span>serviços fechados</span></div>
+      <div class="stat"><b>4.8</b><span>avaliação média</span></div>
+    </div>
+  </div>
+
+  <!-- LADO DIREITO -->
+  <div class="form-col">
+    <div class="login-card">
+      <div class="role-switch">
+        <div class="role-pill" id="rolePill"></div>
+        <button type="button" class="role-btn active" id="btnCliente" onclick="setRole('cliente')">Sou Cliente</button>
+        <button type="button" class="role-btn" id="btnPrestador" onclick="setRole('prestador')">Sou Prestador</button>
+      </div>
+
+      <h2>Bem-vindo de volta</h2>
+      <div class="sub" id="roleSubtitle">Acesse para publicar demandas e acompanhar seus serviços.</div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="voce@email.com" required>
+        </div>
+        <div class="field">
+          <label for="senha">Senha</label>
+          <input type="password" id="senha" placeholder="••••••••" required>
+        </div>
+
+        <div class="row-between">
+          <label class="remember">
+            <input type="checkbox" style="width:auto;"> Lembrar de mim
+          </label>
+          <a class="forgot" href="#">esqueci a senha</a>
+        </div>
+
+        <button type="submit" class="enter-btn" id="enterBtn">Entrar</button>
+      </form>
+
+      <div class="signup-note">Ainda não tem conta? <a href="escolha-perfil.html">Cadastre-se grátis</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-cliente.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+  function setRole(role){
+    const pill = document.getElementById('rolePill');
+    const btnC = document.getElementById('btnCliente');
+    const btnP = document.getElementById('btnPrestador');
+    const subtitle = document.getElementById('roleSubtitle');
+    const enterBtn = document.getElementById('enterBtn');
+
+    if (role === 'cliente') {
+      pill.classList.remove('prestador');
+      btnC.classList.add('active'); btnP.classList.remove('active');
+      subtitle.textContent = 'Acesse para publicar demandas e acompanhar seus serviços.';
+      enterBtn.classList.remove('prestador');
+    } else {
+      pill.classList.add('prestador');
+      btnP.classList.add('active'); btnC.classList.remove('active');
+      subtitle.textContent = 'Acesse para ver demandas na sua região e gerenciar suas OS.';
+      enterBtn.classList.add('prestador');
+    }
+  }
+
+  // Login real, integrado ao Supabase Auth
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value.trim();
+    const senha = document.getElementById('senha').value;
+    const btn = document.getElementById('enterBtn');
+    const originalText = btn.textContent;
+
+    btn.textContent = 'Entrando...';
+    btn.disabled = true;
+
+    const result = await Auth.login(email, senha);
+
+    if (!result.success) {
+      alert(result.error);
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+    // Se deu certo, Auth.login já redireciona para o painel correspondente
+  });
+</script>
+</body>
+</html>

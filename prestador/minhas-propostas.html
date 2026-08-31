@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minhas Propostas · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar prestador">
+    <div class="brand alert">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-prestador.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="demandas-disponiveis.html"><span class="nav-icon">🔍</span> Demandas Disponíveis</a>
+      <a class="nav-item active alert" href="minhas-propostas.html"><span class="nav-icon">📨</span> Minhas Propostas</a>
+      <a class="nav-item" href="ordens-servico.html"><span class="nav-icon">🛠️</span> Ordens de Serviço</a>
+<a class="nav-item" href="historico-financeiro.html"><span class="nav-icon">💳</span> Histórico Financeiro</a>
+      <a class="nav-item" href="meu-perfil-prestador.html"><span class="nav-icon">⚙️</span> Meus Dados</a>
+      <a class="nav-item" href="../index.html" style="color:var(--alert);"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      Olá, Carlos<br>Águas Claras, DF
+      <div class="role-tag alert">conta prestador</div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-topbar">
+      <div>
+        <h1>Minhas Propostas</h1>
+        <div class="sub" id="results-count">carregando...</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input class="search-input" id="search" type="text" placeholder="Buscar por demanda ou cliente...">
+    </div>
+    <div class="chip-select" id="filters">
+      <span class="chip selected" data-filter="all">Todas</span>
+      <span class="chip" data-filter="pendente">Aguardando resposta</span>
+      <span class="chip" data-filter="aceita">Aceitas</span>
+      <span class="chip" data-filter="recusada">Recusadas</span>
+    </div>
+
+    <div id="list" style="margin-top:22px;"></div>
+    <div class="empty-state" id="empty" style="display:none;">
+      <h3>Nenhuma proposta encontrada</h3>
+      <p>Tente outro filtro ou envie uma nova proposta.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+  const PROPOSALS = [
+    { id: 1, demandTitle: "Instalação de chuveiro elétrico", client: "Maria Oliveira", loc: "Águas Claras",
+      value: "R$ 120,00", date: "27/08", status: "pendente" },
+    { id: 2, demandTitle: "Revisão de disjuntor", client: "João Pedro", loc: "Águas Claras",
+      value: "R$ 90,00", date: "25/08", status: "aceita" },
+    { id: 3, demandTitle: "Troca de fiação da cozinha", client: "Ana Souza", loc: "Sudoeste",
+      value: "R$ 300,00", date: "20/08", status: "recusada" },
+  ];
+
+  const STATUS_LABEL = { pendente: "Aguardando resposta", aceita: "Aceita", recusada: "Recusada" };
+  const STATUS_CLASS = { pendente: "agendado", aceita: "andamento", recusada: "cancelado" };
+
+  let activeFilter = "all";
+  let searchTerm = "";
+
+  function render(){
+    const list = document.getElementById("list");
+    const empty = document.getElementById("empty");
+    const filtered = PROPOSALS.filter(p => {
+      const matchesFilter = activeFilter === "all" || p.status === activeFilter;
+      const matchesSearch = !searchTerm ||
+        p.demandTitle.toLowerCase().includes(searchTerm) || p.client.toLowerCase().includes(searchTerm);
+      return matchesFilter && matchesSearch;
+    });
+
+    document.getElementById("results-count").textContent = `${filtered.length} proposta${filtered.length !== 1 ? "s" : ""}`;
+
+    list.innerHTML = "";
+    empty.style.display = filtered.length ? "none" : "block";
+
+    filtered.forEach(p => {
+      const el = document.createElement("div");
+      el.className = "list-row";
+      el.innerHTML = `
+        <div class="avatar avatar-md">📨</div>
+        <div class="list-row-main">
+          <div class="list-row-title">${p.demandTitle}</div>
+          <div class="list-row-sub"><span>${p.client}</span><span class="sep">·</span><span>📍 ${p.loc}</span><span class="sep">·</span><span>${p.date}</span></div>
+        </div>
+        <div class="list-row-side">
+          <span class="status-badge status-${STATUS_CLASS[p.status]}">${STATUS_LABEL[p.status]}</span>
+          <span class="list-row-value">${p.value}</span>
+        </div>`;
+      list.appendChild(el);
+    });
+  }
+
+  document.getElementById("filters").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if(!chip) return;
+    document.querySelectorAll("#filters .chip").forEach(c => c.classList.remove("selected"));
+    chip.classList.add("selected");
+    activeFilter = chip.dataset.filter;
+    render();
+  });
+
+  document.getElementById("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

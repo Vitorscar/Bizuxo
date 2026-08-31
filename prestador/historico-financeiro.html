@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histórico Financeiro · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  /* ===== COMPONENTES ESPECÍFICOS DA PÁGINA ===== */
+  
+  /* Cards de saldo premium */
+  .balance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 28px 0 32px;
+  }
+  
+  .balance-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+    border: 1px solid var(--border);
+  }
+  
+  .balance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 17, 19, 0.08);
+  }
+  
+  .balance-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  
+  .balance-card.available::before {
+    background: var(--accent);
+  }
+  
+  .balance-card.pending::before {
+    background: var(--amber);
+  }
+  
+  .balance-card.monthly::before {
+    background: var(--ink);
+  }
+  
+  .balance-card.fees::before {
+    background: var(--alert);
+  }
+  
+  .balance-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .balance-value {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  
+  .balance-value.available {
+    color: var(--accent-ink);
+  }
+  
+  .balance-value.pending {
+    color: var(--amber);
+  }
+  
+  .balance-value.fees {
+    color: var(--alert-ink);
+  }
+  
+  .balance-trend {
+    font-size: 0.76rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .balance-trend.up {
+    color: var(--accent-ink);
+  }
+  
+  .balance-trend.down {
+    color: var(--alert-ink);
+  }
+  
+  /* Barra de filtros e busca */
+  .filters-bar {
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--border);
+  }
+  
+  .filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  
+  .filter-btn {
+    padding: 8px 14px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all .15s;
+  }
+  
+  .filter-btn:hover {
+    background: var(--surface-soft);
+    color: var(--ink);
+  }
+  
+  .filter-btn.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  
+  .filter-btn.active.accent {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-faint);
+    font-size: 0.9rem;
+  }
+  
+  /* Tabela financeira */
+  .table-container {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  
+  .table-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .table-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+  
+  .table-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .action-btn {
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all .15s;
+    font-family: var(--font-body);
+  }
+  
+  .action-btn:hover {
+    background: var(--surface-soft);
+    color: var(--ink);
+  }
+  
+  .action-btn.primary {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  
+  .action-btn.primary:hover {
+    opacity: 0.9;
+  }
+  
+  .fin-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .fin-table thead {
+    background: var(--surface-soft);
+  }
+  
+  .fin-table th {
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .fin-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--surface-soft);
+    font-size: 0.88rem;
+    color: var(--ink);
+  }
+  
+  .fin-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .fin-table tbody tr {
+    transition: background .15s;
+  }
+  
+  .fin-table tbody tr:hover {
+    background: var(--surface-soft);
+  }
+  
+  .os-link {
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  
+  .client-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .client-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  
+  .amount {
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+  
+  .amount.gross {
+    color: var(--ink);
+  }
+  
+  .amount.commission {
+    color: var(--alert-ink);
+  }
+  
+  .amount.net {
+    color: var(--accent-ink);
+    font-weight: 700;
+  }
+  
+  .date-cell {
+    font-size: 0.76rem;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  
+  /* Nota informativa */
+  .fee-info {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: var(--accent-soft);
+    border-radius: var(--radius-md);
+    font-size: 0.82rem;
+    color: var(--accent-ink);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+    border: 1px solid rgba(5, 193, 103, 0.2);
+  }
+  
+  .fee-info-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .balance-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    
+    .filters-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    .fin-table {
+      min-width: 600px;
+    }
+    
+    .table-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .table-actions {
+      width: 100%;
+    }
+    
+    .action-btn {
+      flex: 1;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar prestador">
+    <div class="brand alert">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-prestador.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="demandas-disponiveis.html"><span class="nav-icon">🔍</span> Demandas Disponíveis</a>
+      <a class="nav-item" href="minhas-propostas.html"><span class="nav-icon">📨</span> Minhas Propostas</a>
+      <a class="nav-item" href="ordens-servico.html"><span class="nav-icon">🛠️</span> Ordens de Serviço</a>
+      <a class="nav-item active alert" href="historico-financeiro.html"><span class="nav-icon">💳</span> Histórico Financeiro</a>
+      <a class="nav-item" href="meu-perfil-prestador.html"><span class="nav-icon">⚙️</span> Meus Dados</a>
+      <a class="nav-item" href="../index.html" style="color:var(--alert);"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      Olá, Carlos<br>Águas Claras, DF
+      <div class="role-tag alert">conta prestador</div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-topbar">
+      <div>
+        <h1>Histórico Financeiro</h1>
+        <div class="sub">Acompanhe seus repasses, comissões e saldo disponível para saque</div>
+      </div>
+      <button class="btn-accent" style="width:auto; padding:12px 24px;" onclick="solicitarSaque()">
+        💳 Solicitar Saque
+      </button>
+    </div>
+
+    <!-- Cards de Saldo -->
+    <div class="balance-grid">
+      <div class="balance-card available">
+        <div class="balance-label">
+          <span>💰</span> Disponível para Saque
+        </div>
+        <div class="balance-value available">R$ 340,00</div>
+        <div class="balance-trend up">↑ 12% vs. mês anterior</div>
+      </div>
+      
+      <div class="balance-card pending">
+        <div class="balance-label">
+          <span>⏳</span> Retido em Disputa
+        </div>
+        <div class="balance-value pending">R$ 0,00</div>
+        <div class="balance-trend" style="color: var(--ink-faint);">Nenhuma disputa ativa</div>
+      </div>
+      
+      <div class="balance-card monthly">
+        <div class="balance-label">
+          <span>📈</span> Recebido Este Mês
+        </div>
+        <div class="balance-value">R$ 890,00</div>
+        <div class="balance-trend up">↑ 5% vs. mês anterior</div>
+      </div>
+      
+      <div class="balance-card fees">
+        <div class="balance-label">
+          <span>📊</span> Comissão Paga (15%)
+        </div>
+        <div class="balance-value fees">R$ 157,00</div>
+        <div class="balance-trend down">↓ Taxa padrão da plataforma</div>
+      </div>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="filters-bar">
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="all">Todas</button>
+        <button class="filter-btn" data-filter="completed">Concluídas</button>
+        <button class="filter-btn" data-filter="pending">Em Andamento</button>
+        <button class="filter-btn" data-filter="cancelled">Canceladas</button>
+      </div>
+      
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Buscar por OS ou cliente..." 
+          id="searchInput"
+          style="padding-left: 40px;"
+        >
+      </div>
+      
+      <button class="btn-outline" style="width:auto; padding:10px 16px; font-size:0.82rem;" onclick="exportarDados()">
+        📊 Exportar
+      </button>
+    </div>
+
+    <!-- Tabela de Transações -->
+    <div class="table-container">
+      <div class="table-header">
+        <h3 class="table-title">Transações Recentes</h3>
+        <div class="table-actions">
+          <button class="action-btn" onclick="verExtratoCompleto()">Ver Extrato Completo</button>
+        </div>
+      </div>
+      
+      <table class="fin-table">
+        <thead>
+          <tr>
+            <th>OS</th>
+            <th>Cliente</th>
+            <th>Valor Bruto</th>
+            <th>Comissão (15%)</th>
+            <th>Valor Líquido</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="transactionsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Nota Informativa -->
+    <div class="fee-info">
+      <span class="fee-info-icon">ℹ️</span>
+      <span>
+        <strong>Importante:</strong> O repasse cai em até 1 dia útil após a confirmação do serviço pelo Código de Fim. 
+        Valores em disputa ficam retidos até a mediação ser concluída pela nossa equipe.
+      </span>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Dados de exemplo
+  const transactions = [
+    { 
+      os: 1088, 
+      client: "Maria Oliveira", 
+      clientInitial: "M",
+      gross: 250, 
+      date: "28/08/2024", 
+      status: "pending", 
+      statusLabel: "Em Andamento",
+      statusClass: "status-andamento"
+    },
+    { 
+      os: 950, 
+      client: "João Marcos", 
+      clientInitial: "J",
+      gross: 80, 
+      date: "15/08/2024", 
+      status: "completed", 
+      statusLabel: "Concluída",
+      statusClass: "status-concluido"
+    },
+    { 
+      os: 912, 
+      client: "Ana Souza", 
+      clientInitial: "A",
+      gross: 120, 
+      date: "10/08/2024", 
+      status: "cancelled", 
+      statusLabel: "Cancelada",
+      statusClass: "status-cancelado"
+    },
+    { 
+      os: 890, 
+      client: "Pedro Lima", 
+      clientInitial: "P",
+      gross: 260, 
+      date: "02/08/2024", 
+      status: "completed", 
+      statusLabel: "Concluída",
+      statusClass: "status-concluido"
+    },
+    { 
+      os: 845, 
+      client: "Carla Mendes", 
+      clientInitial: "C",
+      gross: 150, 
+      date: "28/07/2024", 
+      status: "completed", 
+      statusLabel: "Concluída",
+      statusClass: "status-concluido"
+    },
+  ];
+
+  // Formatação de moeda
+  function formatCurrency(value) {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  }
+
+  // Renderizar tabela
+  function renderTransactions(data) {
+    const tbody = document.getElementById('transactionsBody');
+    tbody.innerHTML = '';
+    
+    if (data.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center; padding:40px; color:var(--ink-faint);">
+            Nenhuma transação encontrada
+          </td>
+        </tr>
+      `;
+      return;
+    }
+    
+    data.forEach(t => {
+      const commission = t.gross * 0.15;
+      const net = t.gross - commission;
+      
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <div class="os-link" onclick="verDetalhesOS(${t.os})">#${t.os}</div>
+          <div class="date-cell">${t.date}</div>
+        </td>
+        <td>
+          <div class="client-cell">
+            <div class="client-avatar">${t.clientInitial}</div>
+            <span>${t.client}</span>
+          </div>
+        </td>
+        <td>
+          <span class="amount gross">${formatCurrency(t.gross)}</span>
+        </td>
+        <td>
+          <span class="amount commission">-${formatCurrency(commission)}</span>
+        </td>
+        <td>
+          <span class="amount net">${formatCurrency(net)}</span>
+        </td>
+        <td>
+          <span class="status-badge ${t.statusClass}">${t.statusLabel}</span>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Inicializar tabela
+  renderTransactions(transactions);
+
+  // Filtros
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      
+      const filter = this.dataset.filter;
+      const filteredData = filter === 'all' 
+        ? transactions 
+        : transactions.filter(t => t.status === filter);
+      
+      renderTransactions(filteredData);
+    });
+  });
+
+  // Busca
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const filteredData = transactions.filter(t => 
+      t.os.toString().includes(searchTerm) || 
+      t.client.toLowerCase().includes(searchTerm)
+    );
+    renderTransactions(filteredData);
+  });
+
+  // Funções globais
+  function solicitarSaque() {
+    alert('💰 Solicitação de saque iniciada!\n\nO valor será transferido para sua conta cadastrada em até 1 dia útil.');
+  }
+
+  function exportarDados() {
+    alert('📊 Exportação iniciada!\n\nUm arquivo CSV será enviado para seu email.');
+  }
+
+  function verExtratoCompleto() {
+    alert('📋 Abrindo extrato completo...');
+  }
+
+  function verDetalhesOS(osId) {
+    alert(`🔍 Abrindo detalhes da OS #${osId}...`);
+  }
+</script>
+</body>
+</html>

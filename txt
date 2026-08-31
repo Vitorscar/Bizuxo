@@ -1,0 +1,95 @@
+os-rapida/
+├── index.html                  (login)
+├── escolha-perfil.html
+├── cadastro-cliente.html
+├── cadastro-prestador.html
+├── style.css                   (design system compartilhado)
+├── js/
+│   ├── supabase-client.js      (stub — troque pelas suas credenciais)
+│   └── auth.js                 (login/cadastro + redirecionamento por tipo)
+├── cliente/
+│   ├── dashboard-cliente.html
+│   ├── minhas-demandas.html
+│   ├── nova-demanda.html
+│   ├── detalhe-demanda.html         (propostas recebidas)
+│   ├── detalhe-demanda-cliente.html (acompanhamento/timeline)
+│   ├── confirmar-demanda.html
+│   ├── servicos-contratados.html
+│   └── meu-perfil-cliente.html
+└── prestador/
+    ├── dashboard-prestador.html
+    ├── demandas-disponiveis.html
+    ├── detalhe-demanda-prestador.html
+    ├── minhas-propostas.html
+    ├── ordens-servico.html
+    └── meu-perfil-prestador.html
+
+
+---------------------------------------------------------------------------------
+os-rapida/
+│
+├── index.html                              # Login (ponto de entrada)
+├── escolha-perfil.html                     # "Sou cliente" / "Sou prestador"
+├── cadastro-cliente.html
+├── cadastro-prestador.html
+├── onboarding-prestador.html               # ✨ NOVO — completa perfil em 3 passos
+├── esqueci-senha.html                      # ✨ NOVO — recuperação de senha
+├── termos.html                             # ✨ NOVO — termos de uso + política
+├── 404.html                                # ✨ NOVO — erro genérico
+│
+├── style.css                               # Design system (verde=cliente, vermelho=prestador)
+├── manifest.webmanifest                    # ✨ NOVO — PWA
+├── sw.js                                   # ✨ NOVO — Service Worker (offline + cache)
+│
+├── assets/
+│   ├── icons/                              # ícones PWA (192, 512, maskable)
+│   └── img/                                # logos, ilustrações, avatares padrão
+│
+├── js/
+│   ├── supabase-client.js                  # stub (URL + anon key)
+│   ├── auth.js                             # login / cadastro / logout / redirect por tipo
+│   ├── guard.js                            # ✨ NOVO — protege rotas por tipo de perfil
+│   ├── notifications.js                    # ✨ NOVO — in-app toast + push (stub)
+│   ├── chat.js                             # ✨ NOVO — realtime do Supabase (canal por OS)
+│   ├── upload.js                           # ✨ NOVO — upload de fotos (perfil / trabalhos)
+│   └── utils.js                            # formatação (moeda, data,RelativeTime)
+│
+├── cliente/
+│   ├── dashboard-cliente.html
+│   ├── minhas-demandas.html
+│   ├── nova-demanda.html
+│   ├── detalhe-demanda.html                # propostas recebidas
+│   ├── detalhe-demanda-cliente.html        # timeline + chat ✨
+│   ├── confirmar-demanda.html
+│   ├── servicos-contratados.html
+│   ├── checkout.html                       # ✨ NOVO — Pix / cartão vinculado à OS
+│   ├── avaliar.html                        # ✨ NOVO — estrelas + comentário pós-OS
+│   ├── prestador-publico.html              # ✨ NOVO — perfil público (nota, fotos, histórico)
+│   └── meu-perfil-cliente.html
+│
+├── prestador/
+│   ├── dashboard.html
+│   ├── demandas-disponiveis.html
+│   ├── detalhe-demanda-prestador.html
+│   ├── minhas-propostas.html
+│   ├── ordens-servico.html                 # agora com botão "Abrir chat" ✨
+│   ├── financeiro.html                     # ✨ NOVO — recebimentos, taxas, saldo, extrato
+│   ├── meus-trabalhos.html                 # ✨ NOVO — portfólio (fotos de antes/depois)
+│   ├── prestador-publico.html              # ✨ NOVO — preview do próprio perfil público
+│   └── meu-perfil.html
+│
+├── shared/
+│   ├── chat-widget.html                    # ✨ NOVO — componente de chat reutilizável
+│   └── notification-center.html            # ✨ NOVO — sino de notificações (dropdown)
+│
+└── admin/
+    ├── dashboard.html                          # ✨ NOVO — métricas gerais (GMV, usuários, OS)
+    ├── usuarios.html                       # ✨ NOVO — lista + ban / verificação
+    ├── prestadores.html                    # ✨ NOVO — moderação de perfis e documentos
+    ├── disputas.html                       # ✨ NOVO — resolve "não reconheço esse serviço"
+    ├── denuncias.html                      # ✨ NOVO — moderação de avaliações/chat
+    └── financeiro.html                     # ✨ NOVO — repasses, taxas da plataforma
+
+
+
+Cannot read properties of undefined (reading 'signInWithPassword')

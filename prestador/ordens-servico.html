@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordens de Serviço · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .row-action-btn{
+    width:auto; padding:9px 14px; font-size:0.78rem; border-radius:100px; font-family:var(--font-body); font-weight:700;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar prestador">
+    <div class="brand alert">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-prestador.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item" href="demandas-disponiveis.html"><span class="nav-icon">🔍</span> Demandas Disponíveis</a>
+      <a class="nav-item" href="minhas-propostas.html"><span class="nav-icon">📨</span> Minhas Propostas</a>
+      <a class="nav-item active alert" href="ordens-servico.html"><span class="nav-icon">🛠️</span> Ordens de Serviço</a>
+      <a class="nav-item" href="historico-financeiro.html"><span class="nav-icon">💳</span> Histórico Financeiro</a>
+      <a class="nav-item" href="meu-perfil-prestador.html"><span class="nav-icon">⚙️</span> Meus Dados</a>
+      <a class="nav-item" href="../index.html" style="color:var(--alert);"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      Olá, Carlos<br>Águas Claras, DF
+      <div class="role-tag alert">conta prestador</div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-topbar">
+      <div>
+        <h1>Ordens de Serviço</h1>
+        <div class="sub">Acompanhe e atualize o andamento dos seus trabalhos.</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input class="search-input" id="search" type="text" placeholder="Buscar por serviço ou cliente...">
+    </div>
+    <div class="chip-select" id="filters">
+      <span class="chip selected" data-filter="all">Todas</span>
+      <span class="chip" data-filter="agendado">Agendadas</span>
+      <span class="chip" data-filter="andamento">Em andamento</span>
+      <span class="chip" data-filter="concluido">Concluídas</span>
+    </div>
+
+    <div id="list" style="margin-top:22px;"></div>
+    <div class="empty-state" id="empty" style="display:none;">
+      <h3>Nenhuma ordem de serviço ainda</h3>
+      <p>Quando uma proposta sua for aceita, ela aparecerá aqui.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+  const ORDERS = [
+    { id: 1088, title: "Instalação elétrica — cômodo extra", client: "Maria Oliveira", loc: "Águas Claras",
+      date: "28/08", value: "R$ 250,00", status: "andamento", statusLabel: "Em andamento", action: "Marcar como concluído" },
+    { id: 1095, title: "Limpeza de calha", client: "Pedro Santos", loc: "Águas Claras",
+      date: "02/09", value: "R$ 180,00", status: "agendado", statusLabel: "Agendado", action: "Iniciar atendimento" },
+    { id: 950, title: "Troca de resistência do chuveiro", client: "João Marcos", loc: "Águas Claras",
+      date: "15/08", value: "R$ 80,00", status: "concluido", statusLabel: "Concluído", action: "Ver avaliação" },
+  ];
+
+  let activeFilter = "all";
+  let searchTerm = "";
+
+  function render(){
+    const list = document.getElementById("list");
+    const empty = document.getElementById("empty");
+    const filtered = ORDERS.filter(o => {
+      const matchesFilter = activeFilter === "all" || o.status === activeFilter;
+      const matchesSearch = !searchTerm ||
+        o.title.toLowerCase().includes(searchTerm) || o.client.toLowerCase().includes(searchTerm);
+      return matchesFilter && matchesSearch;
+    });
+
+    list.innerHTML = "";
+    empty.style.display = filtered.length ? "none" : "block";
+
+    filtered.forEach(o => {
+      const el = document.createElement("div");
+      el.className = "list-row";
+      el.innerHTML = `
+        <div class="avatar avatar-md">🛠️</div>
+        <div class="list-row-main">
+          <div class="list-row-title">${o.title}</div>
+          <div class="list-row-sub"><span>${o.client}</span><span class="sep">·</span><span>📍 ${o.loc}</span><span class="sep">·</span><span>OS #${o.id}</span></div>
+        </div>
+        <div class="list-row-side">
+          <span class="status-badge status-${o.status}">${o.statusLabel}</span>
+          <span class="list-row-value">${o.value}</span>
+          <div style="display:flex; gap:6px;">
+            ${o.status !== 'concluido' ? `<a class="btn btn-outline row-action-btn" href="chat.html">💬</a>` : ''}
+            <button class="btn btn-outline row-action-btn">${o.action}</button>
+          </div>
+        </div>`;
+      list.appendChild(el);
+    });
+  }
+
+  document.getElementById("filters").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if(!chip) return;
+    document.querySelectorAll("#filters .chip").forEach(c => c.classList.remove("selected"));
+    chip.classList.add("selected");
+    activeFilter = chip.dataset.filter;
+    render();
+  });
+
+  document.getElementById("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

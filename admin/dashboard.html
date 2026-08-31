@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Painel Administrativo · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+
+<style>
+  /* ============================================================
+     Complementos visuais: Dashboard Administrativo Premium
+     ============================================================ */
+  
+  /* Badge da Marca na Sidebar */
+  .brand-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--ink-faint);
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Stats Grid Aprimorado */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 17, 19, 0.06);
+  }
+  .stat-card.urgent {
+    border-top: 3px solid var(--alert);
+    background: linear-gradient(to bottom, #fff, var(--alert-soft));
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Cards de Disputa (O coração do Admin) */
+  .dispute-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--alert); /* Indicador visual de urgência */
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 14px;
+    transition: box-shadow 0.2s ease;
+  }
+  .dispute-card:hover {
+    box-shadow: 0 4px 16px rgba(16, 17, 19, 0.06);
+  }
+  .dispute-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .dispute-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .dispute-os {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  
+  /* Grid de Partes Envolvidas */
+  .dispute-parties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    background: var(--surface-soft);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 14px;
+    font-size: 0.85rem;
+  }
+  .party-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .party-name { font-weight: 600; color: var(--ink); }
+  .party-value { font-weight: 700; color: var(--accent-ink); }
+
+  .dispute-reason {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-bottom: 18px;
+    padding-left: 12px;
+    border-left: 2px solid var(--border);
+  }
+  .dispute-reason strong { color: var(--ink); }
+
+  /* Ações da Disputa */
+  .dispute-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .dispute-actions .btn {
+    width: auto;
+    padding: 9px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  /* Badges de Role */
+  .badge-role {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+    text-transform: capitalize;
+  }
+  .badge-role.cliente { background: var(--accent-soft); color: var(--accent-ink); }
+  .badge-role.prestador { background: var(--alert-soft); color: var(--alert-ink); }
+
+  /* Ajustes Mobile */
+  @media (max-width: 600px) {
+    .dispute-parties { grid-template-columns: 1fr; gap: 12px; }
+    .dispute-actions { flex-direction: column; }
+    .dispute-actions .btn { width: 100%; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- Sidebar Administrativa -->
+  <aside class="sidebar">
+    <div class="brand" style="margin-bottom: 8px;">
+      OS<span>Rápida</span> <span class="brand-badge">Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="dashboard-admin.html">
+        <span class="nav-icon">▤</span> Visão Geral
+      </a>
+      <a class="nav-item" href="disputas.html">
+        <span class="nav-icon">⚖️</span> Disputas <span style="margin-left:auto; background:var(--alert); color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:10px;">3</span>
+      </a>
+      <a class="nav-item" href="usuarios.html">
+        <span class="nav-icon">👥</span> Usuários
+      </a>
+      <a class="nav-item" href="transacoes.html">
+        <span class="nav-icon">💳</span> Transações
+      </a>
+      <a class="nav-item" href="denuncias.html">
+        <span class="nav-icon">🚩</span> Denúncias
+      </a>
+      <div style="flex:1"></div>
+      <a class="nav-item" href="../index.html" style="color: var(--alert); margin-top: auto;">
+        <span class="nav-icon">🚪</span> Sair
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">Equipe de Confiança</div>
+      <div style="color: #8B8E96; font-size: 0.75rem; margin-bottom: 10px;">Segurança e Mediação</div>
+      <div class="role-tag">acesso total</div>
+    </div>
+    </aside>
+
+  <!-- Conteúdo Principal -->
+  <main class="main-content">
+    <div class="page-topbar">
+      <div>
+        <h1>Visão Geral</h1>
+        <div class="sub">Métricas da plataforma e casos que exigem mediação imediata.</div>
+      </div>
+      <button class="btn btn-outline" style="width: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem;">
+        <span>📥</span> Exportar relatório
+      </button>
+    </div>
+
+    <!-- Métricas de Alto Nível -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-value">1.842</div>
+        <div class="stat-label">Usuários Ativos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">96</div>
+        <div class="stat-label">Demandas Abertas</div>
+      </div>
+      <!-- Card de Urgência -->
+      <div class="stat-card urgent">
+        <div class="stat-value" style="color: var(--alert);">3</div>
+        <div class="stat-label">Disputas em Aberto</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">R$ 12,4k</div>
+        <div class="stat-label">Comissão no Mês</div>
+      </div>
+    </div>
+
+    <!-- Seção: Disputas (Prioridade Máxima) -->
+    <div class="section-heading">
+      <h2 style="display: flex; align-items: center; gap: 8px;">
+        <span style="display:inline-block; width:8px; height:8px; background:var(--alert); border-radius:50%;"></span>
+        Disputas aguardando mediação
+      </h2>
+      <a href="disputas.html">ver todas →</a>
+    </div>
+
+    <div id="disputesList">
+      <!-- Preenchido via JS -->
+    </div>
+
+    <!-- Seção: Cadastros Recentes -->
+    <div class="section-heading" style="margin-top: 40px;">
+      <h2>Cadastros recentes na plataforma</h2>
+      <a href="usuarios.html">ver todos →</a>
+    </div>
+
+    <div id="signupsList">
+      <!-- Preenchido via JS -->
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ---- Dados Simulados de Disputas ----
+  const DISPUTES = [
+    {
+      id: 4471, os: 1042, title: "Instalação de ar-condicionado", value: "R$ 380,00",
+      client: "Renata Alves", provider: "Marcos Lima",
+      reason: "<strong>Cliente alega:</strong> O serviço não foi concluído conforme combinado e há sujeira no local. O prestador se recusa a retornar.",
+      opened: "há 1 dia"
+    },
+    {
+      id: 4468, os: 1039, title: "Troca de fechadura", value: "R$ 90,00",
+      client: "Bruno Ferreira", provider: "João Reparos",
+      reason: "<strong>Prestador alega:</strong> O Código de Fim de Serviço não foi fornecido pelo cliente, mesmo com o serviço 100% concluído e testado.",
+      opened: "há 2 dias"
+    },
+    {
+      id: 4460, os: 1031, title: "Pintura de sala", value: "R$ 420,00",
+      client: "Camila Duarte", provider: "Pinturas Rocha",
+      reason: "<strong>Divergência:</strong> Cliente aponta manchas no acabamento. Prestador afirma que a parede já estava irregular antes do início.",
+      opened: "há 3 dias"
+    },
+  ];
+
+  // Renderização das Disputas
+  const disputesEl = document.getElementById('disputesList');
+  DISPUTES.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'dispute-card';
+    el.innerHTML = `
+      <div class="dispute-head">
+        <div>
+          <div class="dispute-title">${d.title}</div>
+          <div class="dispute-os">OS #${d.os} · Aberta ${d.opened}</div>
+        </div>
+        <span class="status-badge status-cancelado" style="font-size: 0.75rem; padding: 4px 10px;">Aguardando decisão</span>
+      </div>
+      
+      <div class="dispute-parties">
+        <div>
+          <span class="party-label">Cliente</span>
+          <div class="party-name">${d.client}</div>
+        </div>
+        <div>
+          <span class="party-label">Prestador</span>
+          <div class="party-name">${d.provider}</div>
+        </div>
+        <div style="grid-column: 1 / -1; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border);">
+          <span class="party-label">Valor retido em garantia</span>
+          <div class="party-value" style="font-size: 1rem;">${d.value}</div>
+        </div>
+      </div>
+
+      <div class="dispute-reason">
+        ${d.reason}
+      </div>
+
+      <div class="dispute-actions">
+        <button class="btn btn-accent" onclick="resolverDisputa(${d.id}, 'prestador')">
+          ✓ Liberar para prestador
+        </button>
+        <button class="btn btn-alert" onclick="resolverDisputa(${d.id}, 'cliente')">
+          ↩ Estornar para cliente
+        </button>
+        <button class="btn btn-outline" onclick="verEvidencias(${d.id})">
+          🔍 Ver chat e evidências
+        </button>
+      </div>
+    `;
+    disputesEl.appendChild(el);
+  });
+
+  // ---- Dados Simulados de Cadastros ----
+  const SIGNUPS = [
+    { name: "Renata Alves", role: "cliente", date: "hoje, 08:41", loc: "Águas Claras" },
+    { name: "Pinturas Rocha", role: "prestador", date: "hoje, 07:12", loc: "Taguatinga" },
+    { name: "Bruno Ferreira", role: "cliente", date: "ontem, 22:03", loc: "Sudoeste" },
+    { name: "Carlos Elétrica", role: "prestador", date: "ontem, 18:30", loc: "Águas Claras" },
+  ];
+
+  // Renderização de Cadastros
+  const signupsEl = document.getElementById('signupsList');
+  SIGNUPS.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'list-row';
+    el.style.cursor = 'pointer'; // Indica que é clicável
+    el.innerHTML = `
+      <div class="avatar avatar-md" style="background: ${s.role === 'prestador' ? 'var(--alert-soft)' : 'var(--accent-soft)'}; color: ${s.role === 'prestador' ? 'var(--alert-ink)' : 'var(--accent-ink)'}; font-size: 1.1rem;">
+        ${s.role === 'prestador' ? '🛠️' : '🧑'}
+      </div>
+      <div class="list-row-main">
+        <div class="list-row-title">${s.name}</div>
+        <div class="list-row-sub">
+          <span>📍 ${s.loc}</span>
+          <span class="sep">·</span>
+          <span>${s.date}</span>
+        </div>
+      </div>
+      <div class="list-row-side">
+        <span class="badge-role ${s.role}">${s.role}</span>
+      </div>
+    `;
+    signupsEl.appendChild(el);
+  });
+
+  // ---- Ações do Admin ----
+  function resolverDisputa(id, favorecido) {
+    const acao = favorecido === 'prestador' ? 'liberar o pagamento' : 'estornar o valor';
+    if(confirm(`Tem certeza que deseja ${acao} para a disputa #${id}? Esta ação é irreversível.`)) {
+      // Lógica Supabase: update em 'disputes' + webhook para gateway de pagamento
+      alert(`✅ Disputa #${id} resolvida com sucesso. Notificações enviadas às partes.`);
+      // Aqui você removeria o card do DOM ou recarregaria a lista
+    }
+  }
+
+  function verEvidencias(id) {
+    alert(`🔍 Abrindo modal com:\n- Histórico completo do chat da OS\n- Fotos de antes/depois\n- Códigos de confirmação\n- Dados de pagamento da disputa #${id}`);
+  }
+</script>
+</body>
+</html>

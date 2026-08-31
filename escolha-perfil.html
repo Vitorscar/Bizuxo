@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escolha seu perfil · OS Rápida</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  :root{
+    --bg-app:#0B0B0D; --bg-elevated:#1B1C1F; --surface:#FFFFFF; --surface-soft:#F4F4F2;
+    --ink:#101113; --ink-soft:#6B6E76; --ink-faint:#9A9CA3;
+    --accent:#05C167; --accent-ink:#04572C; --accent-soft:#E1F9EC;
+    --alert:#FF3B30; --alert-ink:#8C1810; --alert-soft:#FFE9E7;
+    --border:#E7E7E4; --radius-lg:20px; --radius-md:14px; --radius-sm:10px;
+    --font-display:'Sora', sans-serif; --font-body:'Inter', sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; background:var(--bg-app); font-family:var(--font-body); display:flex; justify-content:center; }
+  .phone{ width:100%; max-width:460px; min-height:100vh; display:flex; flex-direction:column; }
+
+  .top{ padding:48px 26px 32px; color:#fff; }
+  .brand{ font-family:var(--font-display); font-weight:800; font-size:1.1rem; margin-bottom:26px; }
+  .brand span{ color:var(--accent); }
+  .top h1{ font-family:var(--font-display); font-size:1.6rem; font-weight:700; margin:0 0 8px; line-height:1.25; }
+  .top p{ color:#9A9CA3; font-size:0.9rem; margin:0; }
+
+  .sheet{
+    background:var(--surface); border-radius:var(--radius-lg) var(--radius-lg) 0 0; flex:1;
+    padding:28px 22px 30px; display:flex; flex-direction:column;
+  }
+
+  .choice{
+    display:flex; align-items:center; gap:14px; padding:18px; border:1.5px solid var(--border);
+    border-radius:var(--radius-md); margin-bottom:14px; cursor:pointer; transition:border-color .15s, background .15s;
+  }
+  .choice.selected{ border-color:var(--accent); background:var(--accent-soft); }
+  .choice[data-role="prestador"].selected{ border-color:var(--alert); background:var(--alert-soft); }
+
+  .choice .icon-circle{
+    width:48px; height:48px; border-radius:50%; background:var(--surface-soft); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:1.4rem; border:1px solid var(--border);
+  }
+  .choice-text h3{ font-family:var(--font-display); font-size:1rem; margin:0 0 3px; }
+  .choice-text p{ font-size:0.8rem; color:var(--ink-soft); margin:0; line-height:1.4; }
+
+  .radio{
+    margin-left:auto; width:20px; height:20px; border-radius:50%; border:2px solid #C9CBD1;
+    flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  }
+  .choice.selected .radio{ border-color:var(--accent); }
+  .choice[data-role="prestador"].selected .radio{ border-color:var(--alert); }
+  .radio-dot{ width:10px; height:10px; border-radius:50%; background:var(--accent); transform:scale(0); transition:transform .15s; }
+  .choice[data-role="prestador"] .radio-dot{ background:var(--alert); }
+  .choice.selected .radio-dot{ transform:scale(1); }
+
+  .spacer{ flex:1; }
+
+  .continue-btn{
+    width:100%; background:var(--ink); color:#fff; border:none; padding:15px;
+    font-family:var(--font-display); font-weight:700; font-size:0.95rem; border-radius:var(--radius-sm);
+    cursor:pointer; opacity:0.4; pointer-events:none; transition:opacity .15s, background .15s;
+  }
+  .continue-btn.enabled{ opacity:1; pointer-events:auto; }
+  .continue-btn.enabled[data-role="prestador"]{ background:var(--alert-ink); }
+
+  .back-link{ display:block; text-align:center; margin-top:16px; color:var(--ink-faint); font-size:0.82rem; text-decoration:none; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="top">
+    <div class="brand">OS<span>Rápida</span></div>
+    <h1>Como você vai usar a plataforma?</h1>
+    <p>Escolha um perfil para continuar o cadastro.</p>
+  </div>
+
+  <div class="sheet">
+    <div class="choice" data-role="cliente" onclick="selectRole(this)">
+      <div class="icon-circle">🧑</div>
+      <div class="choice-text">
+        <h3>Sou cliente</h3>
+        <p>Preciso de um serviço e quero publicar uma demanda para receber propostas.</p>
+      </div>
+      <div class="radio"><div class="radio-dot"></div></div>
+    </div>
+
+    <div class="choice" data-role="prestador" onclick="selectRole(this)">
+      <div class="icon-circle">🛠️</div>
+      <div class="choice-text">
+        <h3>Sou prestador</h3>
+        <p>Ofereço serviços e quero ver demandas na minha região para enviar orçamentos.</p>
+      </div>
+      <div class="radio"><div class="radio-dot"></div></div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <button class="continue-btn" id="continueBtn" onclick="goNext()">Continuar</button>
+    <a href="index.html" class="back-link">← Voltar para o login</a>
+  </div>
+</div>
+
+<script>
+  let role = null;
+  const destinations = { cliente: 'cadastro-cliente.html', prestador: 'cadastro-prestador.html' };
+
+  function selectRole(card){
+    document.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    role = card.dataset.role;
+
+    const btn = document.getElementById('continueBtn');
+    btn.textContent = role === 'cliente' ? 'Continuar como cliente' : 'Continuar como prestador';
+    btn.dataset.role = role;
+    btn.classList.add('enabled');
+  }
+
+  function goNext(){
+    if(!role) return;
+    window.location.href = destinations[role];
+  }
+</script>
+</body>
+</html>

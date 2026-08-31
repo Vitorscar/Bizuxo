@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demandas Disponíveis · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .list-row-desc{ font-size:0.82rem; color:var(--ink-soft); margin-top:4px; max-width:44ch; line-height:1.4; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar prestador">
+    <div class="brand alert">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-prestador.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item active alert" href="demandas-disponiveis.html"><span class="nav-icon">🔍</span> Demandas Disponíveis</a>
+      <a class="nav-item" href="minhas-propostas.html"><span class="nav-icon">📨</span> Minhas Propostas</a>
+      <a class="nav-item" href="ordens-servico.html"><span class="nav-icon">🛠️</span> Ordens de Serviço</a>
+<a class="nav-item" href="historico-financeiro.html"><span class="nav-icon">💳</span> Histórico Financeiro</a>
+      <a class="nav-item" href="meu-perfil-prestador.html"><span class="nav-icon">⚙️</span> Meus Dados</a>
+      <a class="nav-item" href="../index.html" style="color:var(--alert);"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      Olá, Carlos<br>Águas Claras, DF
+<div
+  class="role-tag"
+  style="color: #FF3B30 !important; border-color: rgba(255, 59, 48, 0.45) !important;"
+>
+  conta prestador
+</div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-topbar">
+      <div>
+        <h1>Demandas Disponíveis</h1>
+        <div class="sub" id="results-count">carregando...</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input class="search-input" id="search" type="text" placeholder="Buscar por título ou local...">
+    </div>
+    <div class="chip-select" id="filters">
+      <span class="chip selected" data-filter="all">Todas</span>
+      <span class="chip" data-filter="eletrica">Elétrica</span>
+      <span class="chip" data-filter="hidraulica">Hidráulica</span>
+      <span class="chip" data-filter="pintura">Pintura</span>
+      <span class="chip" data-filter="marcenaria">Marcenaria</span>
+    </div>
+
+    <div id="list" style="margin-top:22px;"></div>
+    <div class="empty-state" id="empty" style="display:none;">
+      <h3>Nenhuma demanda encontrada</h3>
+      <p>Tente outro filtro ou volte mais tarde.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+  const DEMANDS = [
+    { id: 823, title: "Instalação de chuveiro elétrico", category: "eletrica", categoryLabel: "Elétrica",
+      desc: "Chuveiro elétrico novo, só falta instalar. Tenho o material.", date: "27/08", loc: "Águas Claras", proposals: 3 },
+    { id: 771, title: "Instalação de ventilador de teto", category: "eletrica", categoryLabel: "Elétrica",
+      desc: "Ventilador novo já comprado, falta só instalar.", date: "02/08", loc: "Águas Claras", proposals: 0 },
+    { id: 918, title: "Vazamento na pia da cozinha", category: "hidraulica", categoryLabel: "Hidráulica",
+      desc: "Vazamento pequeno embaixo da pia, precisa de reparo urgente.", date: "29/08", loc: "Taguatinga", proposals: 1 },
+    { id: 902, title: "Pintura de sala e corredor", category: "pintura", categoryLabel: "Pintura",
+      desc: "Aproximadamente 40m², tinta já escolhida (branco gelo).", date: "30/08", loc: "Sudoeste", proposals: 2 },
+  ];
+
+  let activeFilter = "all";
+  let searchTerm = "";
+
+  function render(){
+    const list = document.getElementById("list");
+    const empty = document.getElementById("empty");
+    const filtered = DEMANDS.filter(d => {
+      const matchesFilter = activeFilter === "all" || d.category === activeFilter;
+      const matchesSearch = !searchTerm ||
+        d.title.toLowerCase().includes(searchTerm) || d.loc.toLowerCase().includes(searchTerm);
+      return matchesFilter && matchesSearch;
+    });
+
+    document.getElementById("results-count").textContent = `${filtered.length} demanda${filtered.length !== 1 ? "s" : ""} na sua região`;
+
+    list.innerHTML = "";
+    empty.style.display = filtered.length ? "none" : "block";
+
+    filtered.forEach(d => {
+      const el = document.createElement("a");
+      el.href = `detalhe-demanda-prestador.html?id=${d.id}`;
+      el.className = "list-row";
+      el.innerHTML = `
+        <div class="avatar avatar-md">✉️</div>
+        <div class="list-row-main">
+          <div class="list-row-title">${d.title}</div>
+          <div class="list-row-sub">
+            <span>📍 ${d.loc}</span><span class="sep">·</span><span>${d.categoryLabel}</span><span class="sep">·</span><span>${d.date}</span>
+          </div>
+          <div class="list-row-desc">"${d.desc}"</div>
+        </div>
+        <div class="list-row-side">
+          <span class="list-row-date">${d.proposals} proposta${d.proposals !== 1 ? "s" : ""} até agora</span>
+          <span class="list-row-action">Enviar proposta →</span>
+        </div>`;
+      list.appendChild(el);
+    });
+  }
+
+  document.getElementById("filters").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if(!chip) return;
+    document.querySelectorAll("#filters .chip").forEach(c => c.classList.remove("selected"));
+    chip.classList.add("selected");
+    activeFilter = chip.dataset.filter;
+    render();
+  });
+
+  document.getElementById("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

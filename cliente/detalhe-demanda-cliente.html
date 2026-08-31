@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Acompanhar serviço · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+
+<style>
+  /* ============================================================
+     Complementos visuais: Timeline e Página de Detalhes
+     ============================================================ */
+  .timeline { position: relative; padding-left: 8px; margin-top: 8px; }
+  .tl-item { position: relative; padding-left: 32px; padding-bottom: 28px; border-left: 2px solid var(--border); }
+  .tl-item:last-child { padding-bottom: 0; border-left: 2px solid transparent; }
+  .tl-dot {
+    position: absolute; left: -9px; top: 0; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--border); display: flex;
+    align-items: center; justify-content: center; font-size: 10px; color: transparent; transition: all 0.2s ease;
+  }
+  .tl-item.done .tl-dot { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tl-item.done .tl-title { color: var(--ink); }
+  .tl-item.current .tl-dot { background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .tl-item.current .tl-title { color: var(--accent-ink); font-weight: 800; }
+  .tl-item.pending .tl-title, .tl-item.pending .tl-desc { color: var(--ink-faint); }
+  .tl-title { font-family: var(--font-display); font-size: 0.88rem; font-weight: 700; margin-bottom: 2px; transition: color 0.2s; }
+  .tl-time { font-size: 0.75rem; color: var(--ink-faint); font-weight: 500; margin-bottom: 4px; }
+  .tl-desc { font-size: 0.82rem; color: var(--ink-soft); line-height: 1.45; }
+
+  .photos-placeholder {
+    display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 20px;
+    border: 1.5px dashed var(--border); border-radius: var(--radius-md); background: var(--surface-soft);
+    color: var(--ink-soft); font-size: 0.85rem; text-align: center;
+  }
+  .photos-placeholder .icon { font-size: 1.5rem; opacity: 0.6; }
+  .page-footer { text-align: center; padding: 32px 20px 40px; font-size: 0.75rem; color: var(--ink-faint); line-height: 1.5; }
+  .page-footer a { color: var(--ink-soft); font-weight: 600; text-decoration: underline; text-decoration-color: var(--border); }
+
+  /* ============================================================
+     Complementos visuais: Chat Overlay Premium
+     ============================================================ */
+  .chat-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--surface-soft); z-index: 1000;
+    display: flex; flex-direction: column;
+    transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .chat-overlay.active { transform: translateY(0); }
+
+  /* Chat Header */
+  .chat-header {
+    background: var(--bg-app); color: #fff; padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .chat-back {
+    background: rgba(255,255,255,0.1); border: none; color: #fff; width: 36px; height: 36px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; cursor: pointer; transition: background 0.15s;
+  }
+  .chat-back:active { background: rgba(255,255,255,0.2); }
+  .chat-header .info { flex: 1; }
+  .chat-header .name { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; }
+  .chat-header .sub { font-size: 0.75rem; color: #B6B8BE; margin-top: 2px; }
+
+  /* Chat Body */
+  .chat-body {
+    flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px;
+    background: var(--surface-soft); scroll-behavior: smooth;
+  }
+  .chat-day {
+    text-align: center; font-size: 0.72rem; font-weight: 600; color: var(--ink-faint);
+    text-transform: uppercase; letter-spacing: 0.05em; margin: 8px 0;
+  }
+  .bubble-system {
+    align-self: center; background: var(--surface); border: 1px solid var(--border);
+    color: var(--ink-soft); font-size: 0.78rem; padding: 8px 16px; border-radius: 100px;
+    text-align: center; max-width: 85%; line-height: 1.4;
+  }
+
+  /* Chat Bubbles */
+  .bubble-row { display: flex; flex-direction: column; max-width: 85%; }
+  .bubble-row.mine { align-self: flex-end; align-items: flex-end; }
+  .bubble-row.theirs { align-self: flex-start; align-items: flex-start; }
+  
+  .bubble {
+    padding: 12px 16px; border-radius: 18px; font-size: 0.9rem; line-height: 1.45;
+    word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .bubble-row.theirs .bubble {
+    background: var(--surface); color: var(--ink); border-bottom-left-radius: 4px;
+  }
+  .bubble-row.mine .bubble {
+    background: var(--accent); color: #fff; border-bottom-right-radius: 4px;
+  }
+  .bubble-time {
+    font-size: 0.68rem; color: var(--ink-faint); margin-top: 4px; font-weight: 500;
+  }
+
+  /* Chat Input Bar */
+  .chat-input-bar {
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 12px 16px; display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .chat-input-bar input {
+    flex: 1; background: var(--surface-soft); border: 1.5px solid transparent;
+    border-radius: 24px; padding: 12px 16px; font-size: 0.9rem; color: var(--ink);
+    font-family: var(--font-body); outline: none; transition: border-color 0.15s;
+  }
+  .chat-input-bar input:focus { border-color: var(--accent); background: var(--surface); }
+  .chat-send {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #fff;
+    border: none; display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; cursor: pointer; transition: transform 0.15s, opacity 0.15s; flex-shrink: 0;
+  }
+  .chat-send:active { transform: scale(0.92); }
+  .chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<!-- Container Mobile do Design System -->
+<div class="container-mobile">
+  
+  <!-- Cabeçalho Escuro Premium -->
+  <div class="header-dark">
+    <div class="header-top">
+      <a class="pill-link" href="servicos-contratados.html">← Voltar</a>
+      <div class="brand">OS<span>Rápida</span></div>
+      <div style="width: 64px;"></div>
+    </div>
+    <div style="text-align: center; padding: 12px 0 24px;">
+      <span class="status-badge status-andamento" style="font-size: 0.78rem; padding: 6px 14px; margin-bottom: 16px; display: inline-flex;">
+        ● Em andamento
+      </span>
+      <h1 style="font-size: 1.45rem; margin-bottom: 8px; letter-spacing: -0.02em; color: #fff;">Instalação elétrica</h1>
+      <p style="color: #B6B8BE; font-size: 0.85rem; margin: 0; font-weight: 500;">OS #1088 · Águas Claras, Brasília</p>
+    </div>
+  </div>
+
+  <!-- Conteúdo Principal -->
+  <div style="padding: 0 20px 40px; margin-top: -10px;">
+    
+    <!-- Card de Timeline -->
+    <div class="card">
+      <div class="card-label"><span class="dot"></span>Andamento do serviço</div>
+      <div class="timeline">
+        <div class="tl-item done">
+          <div class="tl-dot">✓</div>
+          <div>
+            <div class="tl-title">Serviço confirmado</div>
+            <div class="tl-time">26 ago, 19:40</div>
+            <div class="tl-desc">Você confirmou o serviço com Carlos Elétrica.</div>
+          </div>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-dot">✓</div>
+          <div>
+            <div class="tl-title">Agendado</div>
+            <div class="tl-time">27 ago, 08:10</div>
+            <div class="tl-desc">Carlos confirmou a visita para 28/08.</div>
+          </div>
+        </div>
+        <div class="tl-item current">
+          <div class="tl-dot">●</div>
+          <div>
+            <div class="tl-title">A caminho do local</div>
+            <div class="tl-time">Hoje, 09:15</div>
+            <div class="tl-desc">O prestador está se deslocando até o endereço.</div>
+          </div>
+        </div>
+        <div class="tl-item pending">
+          <div class="tl-dot">○</div>
+          <div>
+            <div class="tl-title">Concluído</div>
+            <div class="tl-time">—</div>
+            <div class="tl-desc">Aguardando finalização e fotos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card do Prestador (Apenas Informações) -->
+    <div class="card" style="margin-top: 14px; display: flex; align-items: center; gap: 14px;">
+      <div class="avatar avatar-md" style="background: var(--accent-soft); color: var(--accent-ink); font-size: 1.4rem;">👨‍🔧</div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin-bottom: 2px;">Carlos Elétrica</div>
+        <div style="font-size: 0.8rem; color: var(--ink-soft); display: flex; align-items: center; gap: 6px;">
+          <span style="color: var(--amber);">★ 4,9</span>
+          <span style="color: var(--border);">·</span>
+          <span>127 serviços</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão de Chat Centralizado Abaixo do Card -->
+    <button class="btn btn-accent" onclick="abrirChat()" style="margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; font-weight: 700;">
+      <span>💬</span> Conversar com o prestador
+    </button>
+
+    <!-- Placeholder de Fotos -->
+    <div class="photos-placeholder" style="margin-top: 14px;">
+      <div class="icon">📷</div>
+      <div>
+        <div style="font-weight: 600; color: var(--ink); margin-bottom: 4px;">Fotos do serviço</div>
+        <div style="font-size: 0.82rem;">As imagens aparecerão aqui assim que o prestador atualizar o andamento.</div>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="page-footer">
+      OS Rápida · Acompanhamento seguro.<br>
+      <a href="#">Precisa de ajuda?</a>
+    </footer>
+  </div>
+</div>
+
+<!-- ============================================================
+     CHAT OVERLAY (Fica oculto até ser acionado)
+     ============================================================ -->
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-header">
+    <button class="chat-back" onclick="fecharChat()" aria-label="Fechar chat">←</button>
+    <div class="avatar avatar-sm" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); font-size: 0.9rem;">👨‍🔧</div>
+    <div class="info">
+      <div class="name">Carlos Elétrica</div>
+      <div class="sub">OS #1088 · Instalação elétrica</div>
+    </div>
+  </div>
+
+  <div class="chat-body" id="chatBody">
+    <div class="bubble-system">🔒 Vocês só podem conversar por aqui até o serviço ser concluído, garantindo a segurança de ambos.</div>
+    <div class="chat-day">Hoje</div>
+
+    <div class="bubble-row theirs">
+      <div class="bubble">Bom dia! Confirmando: chego aí às 14h pra instalação do chuveiro 🙂</div>
+      <span class="bubble-time">09:12</span>
+    </div>
+
+    <div class="bubble-row mine">
+      <div class="bubble">Perfeito, vou estar em casa. O material já está separado.</div>
+      <span class="bubble-time">09:15</span>
+    </div>
+
+    <div class="bubble-row theirs">
+      <div class="bubble">Show! Qualquer imprevisto eu aviso por aqui.</div>
+      <span class="bubble-time">09:16</span>
+    </div>
+  </div>
+
+  <form class="chat-input-bar" id="chatForm">
+    <input type="text" id="chatInput" placeholder="Digite uma mensagem..." autocomplete="off">
+    <button type="submit" class="chat-send" id="chatSendBtn" aria-label="Enviar mensagem">➤</button>
+  </form>
+</div>
+
+<script>
+  // ---- Lógica do Chat Overlay ----
+  const chatOverlay = document.getElementById('chatOverlay');
+  const chatBody = document.getElementById('chatBody');
+  const chatForm = document.getElementById('chatForm');
+  const chatInput = document.getElementById('chatInput');
+  const chatSendBtn = document.getElementById('chatSendBtn');
+
+  function abrirChat() {
+    chatOverlay.classList.add('active');
+    setTimeout(() => {
+      chatBody.scrollTop = chatBody.scrollHeight;
+      chatInput.focus();
+    }, 100);
+  }
+
+  function fecharChat() {
+    chatOverlay.classList.remove('active');
+    chatInput.blur(); // Esconde o teclado mobile
+  }
+
+  // Enviar mensagem
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const texto = chatInput.value.trim();
+    if (!texto) return;
+
+    adicionarMensagem(texto, 'mine');
+    chatInput.value = '';
+    
+    // Simula resposta do prestador
+    chatSendBtn.disabled = true;
+    setTimeout(() => {
+      adicionarMensagem("Recebido! Vou manter você atualizado.", 'theirs');
+      chatSendBtn.disabled = false;
+    }, 1500);
+  });
+
+  function adicionarMensagem(texto, tipo) {
+    const row = document.createElement('div');
+    row.className = `bubble-row ${tipo}`;
+    const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    
+    row.innerHTML = `
+      <div class="bubble">${texto}</div>
+      <span class="bubble-time">${hora}</span>
+    `;
+    
+    chatBody.appendChild(row);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+</script>
+
+</body>
+</html>

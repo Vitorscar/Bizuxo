@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Demanda · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .wrap{ padding:24px 22px 60px; }
+  .intro{ margin-bottom:20px; }
+  .intro h1{ font-size:1.35rem; margin:0 0 6px; }
+  .intro p{ font-size:0.85rem; color:var(--ink-soft); margin:0; }
+  .terms{ font-size:0.75rem; color:var(--ink-faint); text-align:center; margin-top:14px; }
+</style>
+</head>
+<body>
+
+<div class="container-mobile">
+  <header class="header-dark">
+    <div class="header-top">
+      <div class="brand">OS<span>Rápida</span></div>
+      <a class="pill-link" href="dashboard-cliente.html">Cancelar</a>
+    </div>
+    <h2 style="font-size:1.1rem; margin:0;">Publicar nova demanda</h2>
+    <div class="step-track">
+      <div class="step-dot done"></div>
+      <div class="step-dot"></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="intro">
+      <p>Passo 1 de 2 · conte o que você precisa e receba propostas de prestadores da sua região.</p>
+    </div>
+
+    <form id="novaDemandaForm">
+      <div class="card">
+        <div class="card-label"><span class="dot"></span>O que você precisa</div>
+        <div class="field">
+          <label for="titulo">Título da demanda</label>
+          <input type="text" id="titulo" placeholder="Ex: Instalação de chuveiro elétrico" required>
+        </div>
+
+        <div class="field">
+          <label>Tipo de serviço</label>
+          <div class="chip-select" id="categoriaChips">
+            <span class="chip" data-value="eletrica">⚡ Elétrica</span>
+            <span class="chip" data-value="hidraulica">🚿 Hidráulica</span>
+            <span class="chip" data-value="pintura">🎨 Pintura</span>
+            <span class="chip" data-value="marcenaria">🪵 Marcenaria</span>
+            <span class="chip" data-value="arcondicionado">❄️ Ar-condicionado</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="descricao">Descreva o que precisa ser feito</label>
+          <textarea id="descricao" placeholder="Quanto mais detalhes, melhores serão as propostas dos prestadores..." required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="data_limite">Data limite (opcional)</label>
+          <input type="date" id="data_limite">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><span class="dot"></span>Onde é o serviço</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="cidade">Cidade</label>
+            <input type="text" id="cidade" value="Brasília" required>
+          </div>
+          <div class="field">
+            <label for="bairro">Bairro</label>
+            <input type="text" id="bairro" value="Águas Claras" required>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-accent" id="publishBtn">Publicar demanda e receber propostas</button>
+      <div class="terms">os prestadores da sua região serão notificados assim que você publicar</div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const chips = document.querySelectorAll('#categoriaChips .chip');
+  let categoriaSelecionada = null;
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('selected', 'accent'));
+      chip.classList.add('selected', 'accent');
+      categoriaSelecionada = chip.dataset.value;
+    });
+  });
+
+  document.getElementById('novaDemandaForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    if (!categoriaSelecionada) {
+      alert('Selecione o tipo de serviço.');
+      return;
+    }
+
+    const btn = document.getElementById('publishBtn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Publicando...';
+    btn.disabled = true;
+
+    // Lógica Supabase: insert em 'demands' com status 'aberta' e categoria = categoriaSelecionada
+    setTimeout(() => {
+      window.location.href = 'minhas-demandas.html';
+    }, 600);
+  });
+</script>
+</body>
+</html>

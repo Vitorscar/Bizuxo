@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minhas demandas · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .new-btn{ width:auto; padding:12px 20px; }
+  .list-row-desc{ font-size:0.82rem; color:var(--ink-soft); margin-top:4px; max-width:44ch; line-height:1.4; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">OS<span>Rápida</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-cliente.html"><span class="nav-icon">▤</span> Visão Geral</a>
+      <a class="nav-item active" href="minhas-demandas.html"><span class="nav-icon">✉</span> Minhas Demandas</a>
+      <a class="nav-item" href="servicos-contratados.html"><span class="nav-icon">🛠️</span> Serviços Contratados</a>
+      <a class="nav-item" href="meu-perfil-cliente.html"><span class="nav-icon">⚙️</span> Meus Dados</a>
+      <a class="nav-item" href="../index.html" style="color:var(--alert);"><span class="nav-icon">🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-foot">
+      Olá, Maria<br>Águas Claras, DF
+      <div class="role-tag">conta cliente</div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-topbar">
+      <div>
+        <h1>Minhas demandas</h1>
+        <div class="sub" id="results-count">carregando...</div>
+      </div>
+      <a class="btn btn-accent new-btn" href="nova-demanda.html">＋ Nova Demanda</a>
+    </div>
+
+    <div class="toolbar">
+      <input class="search-input" id="search" type="text" placeholder="Buscar por título ou local...">
+    </div>
+    <div class="chip-select" id="filters">
+      <span class="chip selected" data-filter="all">Todas</span>
+      <span class="chip" data-filter="open">Aguardando propostas</span>
+      <span class="chip" data-filter="receiving">Com propostas</span>
+      <span class="chip" data-filter="selected">Em andamento</span>
+      <span class="chip" data-filter="pending_conf">Aguardando confirmação</span>
+      <span class="chip" data-filter="done">Concluídas</span>
+    </div>
+
+    <div id="list" style="margin-top:22px;"></div>
+    <div class="empty-state" id="empty" style="display:none;">
+      <h3>Nenhuma demanda encontrada</h3>
+      <p>Tente outro filtro ou publique uma nova demanda.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+  const DEMANDS = [
+    { id: 823, title: "Instalação de chuveiro elétrico", category: "Elétrica", desc: "Chuveiro elétrico novo, só falta instalar. Tenho o material.",
+      date: "27/08", loc: "Águas Claras", status: "receiving", proposals: 3, provider: null },
+    { id: 819, title: "Revisão de disjuntor", category: "Elétrica", desc: "Disjuntor desarmando sozinho, preciso resolver essa semana.",
+      date: "25/08", loc: "Águas Claras", status: "selected", proposals: 2, provider: "João Marcos" },
+    { id: 802, title: "Instalação elétrica — cômodo extra", category: "Elétrica", desc: "Instalação completa de fiação e tomadas em cômodo novo.",
+      date: "20/08", loc: "Águas Claras", status: "pending_conf", proposals: 1, provider: "Carlos Elétrica" },
+    { id: 790, title: "Troca de fiação da cozinha", category: "Elétrica", desc: "Fiação antiga, trocar por completo antes da reforma.",
+      date: "10/08", loc: "Águas Claras", status: "done", proposals: 4, provider: "Marcos Lima" },
+    { id: 771, title: "Instalação de ventilador de teto", category: "Elétrica", desc: "Ventilador novo já comprado, falta só instalar.",
+      date: "02/08", loc: "Águas Claras", status: "open", proposals: 0, provider: null },
+  ];
+
+  const STAMP_LABEL = {
+    open: "Aguardando propostas", receiving: "Propostas recebidas", selected: "Em andamento",
+    pending_conf: "Aguardando confirmação", done: "Concluída", cancelled: "Cancelada"
+  };
+
+  let activeFilter = "all";
+  let searchTerm = "";
+
+  function render(){
+    const list = document.getElementById("list");
+    const empty = document.getElementById("empty");
+    const filtered = DEMANDS.filter(d => {
+      const matchesFilter = activeFilter === "all" || d.status === activeFilter;
+      const matchesSearch = !searchTerm ||
+        d.title.toLowerCase().includes(searchTerm) || d.loc.toLowerCase().includes(searchTerm);
+      return matchesFilter && matchesSearch;
+    });
+
+    document.getElementById("results-count").textContent = `${filtered.length} demanda${filtered.length !== 1 ? "s" : ""}`;
+
+    list.innerHTML = "";
+    empty.style.display = filtered.length ? "none" : "block";
+
+    filtered.forEach(d => {
+      const el = document.createElement("a");
+      el.href = "detalhe-demanda.html";
+      el.className = "list-row";
+      el.innerHTML = `
+        <div class="avatar avatar-md">✉️</div>
+        <div class="list-row-main">
+          <div class="list-row-title">${d.title}</div>
+          <div class="list-row-sub">
+            <span>📍 ${d.loc}</span><span class="sep">·</span><span>${d.category}</span><span class="sep">·</span><span>DEM #${d.id}</span>
+          </div>
+          <div class="list-row-desc">"${d.desc}"</div>
+        </div>
+        <div class="list-row-side">
+          <span class="status-badge status-${d.status}">${STAMP_LABEL[d.status]}</span>
+          <span class="list-row-date">${d.provider ? `com ${d.provider}` : `${d.proposals} proposta${d.proposals !== 1 ? "s" : ""}`}</span>
+          <span class="list-row-date">${d.date}</span>
+        </div>`;
+      list.appendChild(el);
+    });
+  }
+
+  document.getElementById("filters").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if(!chip) return;
+    document.querySelectorAll("#filters .chip").forEach(c => c.classList.remove("selected"));
+    chip.classList.add("selected");
+    activeFilter = chip.dataset.filter;
+    render();
+  });
+
+  document.getElementById("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

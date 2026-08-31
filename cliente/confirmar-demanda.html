@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirmar serviço · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+
+<style>
+  .confirm-card{ width:100%; max-width:400px; background:var(--surface); border-radius:var(--radius-lg);
+    box-shadow:0 2px 24px rgba(16,17,19,0.08); padding:30px 26px 26px; }
+
+  .check-circle{
+    width:56px; height:56px; border-radius:50%; background:var(--accent-soft); margin:0 auto 18px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .check-circle svg{ width:26px; height:26px; }
+  .check-circle path{ stroke:var(--accent-ink); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+
+  .eyebrow{ font-size:0.78rem; font-weight:700; color:var(--accent-ink); margin-bottom:8px; }
+  h1{ font-size:1.35rem; font-weight:700; margin:0 0 6px; }
+  .greeting{ font-size:0.88rem; color:var(--ink-soft); margin-bottom:22px; line-height:1.5; }
+
+  .provider-strip{
+    display:flex; align-items:center; gap:10px; text-align:left; margin:18px 0 22px;
+    padding:12px 14px; background:var(--surface-soft); border-radius:var(--radius-md);
+  }
+  .provider-info .name{ font-weight:700; font-size:0.86rem; }
+  .provider-info .rating{ font-size:0.76rem; color:var(--ink-soft); }
+
+  .why-note{
+    margin-top:22px; font-size:0.76rem; color:var(--ink-faint); line-height:1.5; text-align:left;
+    border-top:1px solid var(--border); padding-top:16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container-card">
+  <div class="confirm-card text-center">
+    <div class="check-circle">
+      <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
+    </div>
+
+    <div class="eyebrow">Confirmação de serviço</div>
+    <h1>Olá, Maria!</h1>
+    <div class="greeting">Carlos criou uma ordem de serviço para você. Confira os detalhes antes de confirmar.</div>
+
+    <div class="detail-lines" style="text-align:left;">
+      <div class="detail-line"><span>Serviço</span><span>Instalação elétrica</span></div>
+      <div class="detail-line"><span>Local</span><span>Águas Claras</span></div>
+      <div class="detail-line"><span>Data prevista</span><span>28/08/2026</span></div>
+      <div class="detail-line"><span>Valor</span><span>R$ 250,00</span></div>
+    </div>
+
+    <div class="provider-strip">
+      <div class="avatar avatar-sm">👨‍🔧</div>
+      <div class="provider-info">
+        <div class="name">Carlos Elétrica</div>
+        <div class="rating">★ 4,9 · 127 serviços</div>
+      </div>
+    </div>
+
+    <button class="btn btn-accent" style="margin-bottom:10px;" onclick="confirmarServico()">Confirmar serviço</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="naoReconhecer()">Não reconheço esse serviço</button>
+
+    <div class="why-note">Ao confirmar, esse serviço passa a contar como <b>verificado</b> no perfil do prestador, e você poderá avaliar o atendimento quando ele for concluído.</div>
+  </div>
+</div>
+
+<script>
+  function confirmarServico(){
+    // Lógica Supabase: atualizar order.status para 'confirmado_pelo_cliente'
+    window.location.href = 'servicos-contratados.html';
+  }
+  function naoReconhecer(){
+    if(confirm('Tem certeza que não reconhece esse serviço? Isso vai sinalizar a ordem para revisão.')){
+      // Lógica Supabase: atualizar order.status para 'em_disputa'
+      window.location.href = 'servicos-contratados.html';
+    }
+  }
+</script>
+</body>
+</html>
