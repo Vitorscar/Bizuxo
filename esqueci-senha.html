@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esqueci minha senha · OS Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .card{ max-width:380px; width:100%; box-shadow:0 2px 24px rgba(16,17,19,0.08); }
+  .check-circle{
+    width:56px; height:56px; border-radius:50%; background:var(--accent-soft); margin:0 auto 16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .check-circle svg{ width:26px; height:26px; }
+  .check-circle path{ stroke:var(--accent-ink); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+</style>
+</head>
+<body>
+
+<div class="container-card">
+  <div class="card text-center" id="formCard">
+    <h1 style="font-size:1.25rem; margin:0 0 6px;">Esqueceu sua senha?</h1>
+    <p style="font-size:0.85rem; color:var(--ink-soft); margin:0 0 20px;">Digite seu e-mail e enviaremos um link para redefinir sua senha.</p>
+
+    <form id="resetForm" style="text-align:left;">
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="voce@email.com" required>
+      </div>
+      <button type="submit" class="btn btn-dark" id="sendBtn">Enviar link de redefinição</button>
+    </form>
+
+    <a href="index.html" style="display:block; margin-top:16px; font-size:0.85rem; color:var(--ink-soft);">← Voltar ao login</a>
+  </div>
+
+  <div class="card text-center" id="successCard" style="display:none;">
+    <div class="check-circle"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+    <h1 style="font-size:1.15rem; margin:0 0 6px;">Link enviado!</h1>
+    <p style="font-size:0.85rem; color:var(--ink-soft); margin:0 0 20px;">Confira sua caixa de entrada (e o spam) para redefinir sua senha.</p>
+    <a class="btn btn-dark" href="index.html">Voltar ao login</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  document.getElementById('resetForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('sendBtn');
+    const email = document.getElementById('email').value.trim();
+
+    btn.textContent = 'Enviando...';
+    btn.disabled = true;
+
+    const result = await Auth.recuperarSenha(email);
+
+    if (result.success) {
+      document.getElementById('formCard').style.display = 'none';
+      document.getElementById('successCard').style.display = 'block';
+    } else {
+      Utils.toast(result.error, 'error');
+      btn.textContent = 'Enviar link de redefinição';
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
