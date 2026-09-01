@@ -1,5 +1,5 @@
 /* ============================================================
-   OS Rápida — Design System
+   Bizuxo — Design System
    Tokens e componentes compartilhados por todas as páginas.
    Inclua depois da fonte, em todo HTML:
    <link rel="stylesheet" href="style.css">
@@ -243,4 +243,32 @@ textarea{ min-height:100px; resize:vertical; font-family:var(--font-body); }
 .sidebar.prestador .role-tag {
   color: #FF3B30 !important;
   border-color: rgba(255, 59, 48, 0.45) !important;
+}
+#quemPrecisa,
+#quemResolve {
+  transition: color .3s ease;
+}
+
+#quemPrecisa {
+  color: var(--accent);
+}
+
+#quemResolve {
+  color: #fff;
+}
+#tipoMarca {
+  color: #28a745; /* Cliente = verde */
+  transition: color 0.3s ease;
+}
+
+#tipoMarca.prestador {
+  color: #e53935; /* Prestador = vermelho */
+}
+#tipoMarca {
+  color: var(--accent);
+  transition: color 0.4s ease;
+}
+
+#tipoMarca.prestador {
+  color: var(--alert);
 }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Cadastro de Prestador · OS Rápida</title>
+<title>Cadastro de Prestador · Bizuxo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
@@ -11,11 +11,59 @@
 
 <style>
   /* ============================================================
+     Fallback de Variáveis (Caso ../style.css não carregue tudo)
+     ============================================================ */
+  :root {
+    --surface-soft: #F8F9FA;
+    --bg-app: #111827;
+    --alert: #EF4444;
+    --alert-soft: #FEF2F2;
+    --alert-ink: #991B1B;
+    --accent: #10B981;
+    --accent-soft: #ECFDF5;
+    --ink: #1F2937;
+    --ink-soft: #4B5563;
+    --ink-faint: #9CA3AF;
+    --border: #E5E7EB;
+    --surface: #FFFFFF;
+    --font-body: 'Inter', sans-serif;
+    --font-display: 'Sora', sans-serif;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+  }
+
+  /* Estilos básicos de suporte para garantir funcionamento standalone */
+  .brand { font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: #fff; }
+  .brand span { color: var(--alert); }
+  
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); font-family: var(--font-body);
+    font-size: 0.95rem; color: var(--ink); background: var(--surface);
+    transition: border-color 0.2s; box-sizing: border-box;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--alert); }
+  .field .helper { font-size: 0.78rem; color: var(--ink-faint); margin-top: 6px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 14px 20px; border-radius: var(--radius-sm);
+    font-family: var(--font-body); font-weight: 600; font-size: 0.95rem;
+    cursor: pointer; transition: all 0.2s; border: none;
+  }
+  .btn-alert { background: var(--alert); color: #fff; }
+  .btn-alert:hover { background: #DC2626; }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--ink); }
+  .btn-outline:hover { border-color: var(--ink); }
+
+  /* ============================================================
      Onboarding do Prestador — Stepper Premium
      ============================================================ */
-  
   html, body { height: 100%; }
-  body { background: var(--surface-soft); }
+  body { background: var(--surface-soft); margin: 0; }
 
   .onboarding-shell {
     max-width: 560px;
@@ -26,7 +74,6 @@
     background: var(--surface-soft);
   }
 
-  /* Header Fixo com Progresso */
   .onboarding-header {
     background: var(--bg-app);
     color: #fff;
@@ -46,50 +93,28 @@
     color: #B6B8BE;
     font-weight: 600;
   }
-  .skip-btn {
-    background: none;
-    border: none;
-    color: #B6B8BE;
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: var(--font-body);
-    transition: color 0.15s;
-  }
-  .skip-btn:hover { color: #fff; }
 
-  /* Progress Bar */
-  .progress-track {
-    display: flex;
-    gap: 6px;
-  }
+  .progress-track { display: flex; gap: 6px; }
   .progress-segment {
-    flex: 1;
-    height: 4px;
-    border-radius: 100px;
+    flex: 1; height: 4px; border-radius: 100px;
     background: rgba(255,255,255,0.12);
-    overflow: hidden;
-    position: relative;
+    overflow: hidden; position: relative;
   }
   .progress-fill {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 0%;
-    background: var(--alert);
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 0%; background: var(--alert);
     border-radius: 100px;
     transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .progress-segment.done .progress-fill { width: 100%; }
   .progress-segment.current .progress-fill { width: 50%; }
 
-  /* Corpo do Onboarding */
   .onboarding-body {
     flex: 1;
     padding: 28px 24px 100px;
     overflow-y: auto;
   }
 
-  /* Cada Step */
   .step-view {
     display: none;
     animation: fadeSlideIn 0.4s ease forwards;
@@ -101,289 +126,136 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .step-emoji {
-    font-size: 2.5rem;
-    margin-bottom: 16px;
-    display: block;
-  }
+  .step-emoji { font-size: 2.5rem; margin-bottom: 16px; display: block; }
   .step-title {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--ink);
-    margin: 0 0 8px;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display); font-size: 1.5rem; font-weight: 800;
+    color: var(--ink); margin: 0 0 8px; letter-spacing: -0.02em;
   }
   .step-desc {
-    font-size: 0.92rem;
-    color: var(--ink-soft);
-    line-height: 1.55;
+    font-size: 0.92rem; color: var(--ink-soft); line-height: 1.55;
     margin: 0 0 28px;
   }
 
-  /* Upload de Avatar no Onboarding */
   .avatar-upload-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 28px;
+    display: flex; flex-direction: column; align-items: center; margin-bottom: 28px;
   }
   .avatar-circle {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: var(--surface);
-    border: 2px dashed var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 10px;
+    width: 100px; height: 100px; border-radius: 50%;
+    background: var(--surface); border: 2px dashed var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; cursor: pointer; transition: all 0.2s;
+    position: relative; overflow: hidden; margin-bottom: 10px;
   }
-  .avatar-circle:hover {
-    border-color: var(--alert);
-    background: var(--alert-soft);
-  }
-  .avatar-circle img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .avatar-circle .placeholder-icon {
-    color: var(--ink-faint);
-    transition: color 0.2s;
-  }
+  .avatar-circle:hover { border-color: var(--alert); background: var(--alert-soft); }
+  .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-circle .placeholder-icon { color: var(--ink-faint); transition: color 0.2s; }
   .avatar-circle:hover .placeholder-icon { color: var(--alert); }
-  .avatar-hint {
-    font-size: 0.78rem;
-    color: var(--ink-faint);
-    font-weight: 500;
-  }
+  .avatar-hint { font-size: 0.78rem; color: var(--ink-faint); font-weight: 500; }
 
-  /* Upload de Documento */
   .doc-upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: var(--radius-md);
-    padding: 32px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 16px;
-    background: var(--surface);
+    border: 2px dashed var(--border); border-radius: var(--radius-md);
+    padding: 32px 20px; text-align: center; cursor: pointer;
+    transition: all 0.2s; margin-bottom: 16px; background: var(--surface);
   }
-  .doc-upload-zone:hover {
-    border-color: var(--alert);
-    background: var(--alert-soft);
-  }
-  .doc-upload-zone .icon {
-    font-size: 2rem;
-    margin-bottom: 10px;
-    display: block;
-  }
+  .doc-upload-zone:hover { border-color: var(--alert); background: var(--alert-soft); }
+  .doc-upload-zone .icon { font-size: 2rem; margin-bottom: 10px; display: block; }
   .doc-upload-zone h4 {
-    font-family: var(--font-display);
-    font-size: 0.95rem;
-    margin: 0 0 4px;
-    color: var(--ink);
+    font-family: var(--font-display); font-size: 0.95rem;
+    margin: 0 0 4px; color: var(--ink);
   }
-  .doc-upload-zone p {
-    font-size: 0.8rem;
-    color: var(--ink-soft);
-    margin: 0;
-  }
+  .doc-upload-zone p { font-size: 0.8rem; color: var(--ink-soft); margin: 0; }
   .doc-upload-zone.uploaded {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-    border-style: solid;
+    border-color: var(--accent); background: var(--accent-soft); border-style: solid;
   }
-  .doc-upload-zone.uploaded .icon::after {
-    content: ' ✓';
-    color: var(--accent);
-  }
+  .doc-upload-zone.uploaded .icon::after { content: ' ✓'; color: var(--accent); }
 
-  /* Chips de Especialidade no Onboarding */
   .specialty-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 24px;
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 10px; margin-bottom: 24px;
   }
   .specialty-chip {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 16px;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all 0.15s;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--ink);
+    display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+    font-size: 0.88rem; font-weight: 600; color: var(--ink);
   }
-  .specialty-chip:hover {
-    border-color: var(--ink);
-  }
+  .specialty-chip:hover { border-color: var(--ink); }
   .specialty-chip.selected {
-    background: var(--alert-soft);
-    border-color: var(--alert);
-    color: var(--alert-ink);
+    background: var(--alert-soft); border-color: var(--alert); color: var(--alert-ink);
   }
   .specialty-chip .emoji { font-size: 1.2rem; }
   .specialty-chip .check {
-    margin-left: auto;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    color: transparent;
+    margin-left: auto; width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--border); display: flex; align-items: center;
+    justify-content: center; font-size: 0.7rem; color: transparent;
     transition: all 0.15s;
   }
   .specialty-chip.selected .check {
-    background: var(--alert);
-    border-color: var(--alert);
-    color: #fff;
+    background: var(--alert); border-color: var(--alert); color: #fff;
   }
 
-  /* Barra de Ação Fixa no Rodapé */
   .onboarding-footer {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 560px;
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 560px; background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid var(--border);
     padding: 16px 24px max(16px, env(safe-area-inset-bottom));
-    display: flex;
-    gap: 12px;
-    z-index: 100;
+    display: flex; gap: 12px; z-index: 100; box-sizing: border-box;
   }
   .onboarding-footer .btn { flex: 1; }
-  .onboarding-footer .btn-back {
-    flex: 0;
-    width: auto;
-    padding: 15px 18px;
-  }
+  .onboarding-footer .btn-back { flex: 0; width: auto; padding: 15px 18px; }
 
-  /* Step de Sucesso */
-  .success-view {
-    text-align: center;
-    padding: 40px 0;
-  }
+  .success-view { text-align: center; padding: 40px 0; }
   .success-icon-wrap {
-    width: 88px;
-    height: 88px;
-    border-radius: 50%;
-    background: var(--accent-soft);
-    margin: 0 auto 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 88px; height: 88px; border-radius: 50%;
+    background: var(--accent-soft); margin: 0 auto 24px;
+    display: flex; align-items: center; justify-content: center;
   }
-  .success-icon-wrap svg {
-    width: 40px;
-    height: 40px;
-  }
+  .success-icon-wrap svg { width: 40px; height: 40px; }
   .success-icon-wrap path {
-    stroke: var(--accent);
-    stroke-width: 3;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 50;
-    stroke-dashoffset: 50;
+    stroke: var(--accent); stroke-width: 3; fill: none;
+    stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 50; stroke-dashoffset: 50;
     animation: drawCheck 0.6s ease 0.3s forwards;
   }
-  @keyframes drawCheck {
-    to { stroke-dashoffset: 0; }
-  }
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
 
   .success-title {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--ink);
-    margin: 0 0 10px;
+    font-family: var(--font-display); font-size: 1.6rem; font-weight: 800;
+    color: var(--ink); margin: 0 0 10px;
   }
   .success-desc {
-    font-size: 0.95rem;
-    color: var(--ink-soft);
-    line-height: 1.55;
-    margin: 0 0 32px;
-    max-width: 380px;
-    margin-left: auto;
-    margin-right: auto;
+    font-size: 0.95rem; color: var(--ink-soft); line-height: 1.55;
+    margin: 0 0 32px; max-width: 380px; margin-left: auto; margin-right: auto;
   }
 
-  /* Checklist de próximos passos */
   .next-steps {
-    text-align: left;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 20px;
-    margin-bottom: 28px;
+    text-align: left; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 20px; margin-bottom: 28px;
   }
   .next-steps h3 {
-    font-family: var(--font-display);
-    font-size: 0.9rem;
-    font-weight: 700;
-    margin: 0 0 14px;
-    color: var(--ink);
+    font-family: var(--font-display); font-size: 0.9rem; font-weight: 700;
+    margin: 0 0 14px; color: var(--ink);
   }
   .next-step-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.88rem;
-    color: var(--ink);
+    display: flex; align-items: flex-start; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--border); font-size: 0.88rem; color: var(--ink);
   }
   .next-step-item:last-child { border-bottom: none; }
   .next-step-item .step-num {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--alert-soft);
-    color: var(--alert-ink);
-    font-size: 0.75rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--alert-soft); color: var(--alert-ink);
+    font-size: 0.75rem; font-weight: 800; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
   }
   .next-step-item .step-text { line-height: 1.4; }
   .next-step-item .step-text strong { color: var(--ink); }
 
-  /* Info Box */
   .info-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px 16px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 20px;
-    font-size: 0.82rem;
-    color: var(--ink-soft);
-    line-height: 1.5;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px;
+    font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5;
   }
   .info-box .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
 
@@ -391,6 +263,7 @@
     .specialty-grid { grid-template-columns: 1fr; }
     .onboarding-body { padding: 24px 20px 100px; }
     .onboarding-header { padding: 16px 20px 24px; }
+    .field-row { grid-template-columns: 1fr; gap: 0; }
   }
 </style>
 </head>
@@ -401,7 +274,7 @@
   <!-- Header com Progresso -->
   <div class="onboarding-header">
     <div class="onboarding-header-top">
-      <div class="brand alert">OS<span>Rápida</span></div>
+      <div class="brand">Bizu<span>xo</span></div>
       <span class="step-counter" id="stepCounter">Passo 1 de 4</span>
     </div>
     <div class="progress-track">
@@ -443,7 +316,7 @@
       <div class="field-row">
         <div class="field">
           <label for="whatsapp">WhatsApp</label>
-          <input type="tel" id="whatsapp" placeholder="(61) 99999-9999">
+          <input type="tel" id="whatsapp" placeholder="(61) 99999-9999" maxlength="15">
         </div>
         <div class="field">
           <label for="cidade">Cidade base</label>
@@ -632,7 +505,7 @@
     if (currentStep === totalSteps) {
       // Step de sucesso: muda o footer
       footer.innerHTML = `
-        <a href="dashboard-prestador.html" class="btn btn-alert" style="flex:1; text-align:center; text-decoration:none;">
+        <a href="dashboard-prestador.html" class="btn btn-alert" style="flex:1; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center;">
           Ir para o painel →
         </a>
       `;
@@ -643,4 +516,124 @@
       }
       document.getElementById('stepCounter').textContent = 'Concluído ✓';
     } else if (currentStep === totalSteps - 1) {
+      btnNext.textContent = 'Concluir Cadastro';
+    } else {
+      btnNext.textContent = 'Continuar';
+    }
+  }
+
+  function nextStep() {
+    // Validações básicas antes de avançar
+    if (currentStep === 1) {
+      const nome = document.getElementById('nome').value.trim();
+      const whatsapp = document.getElementById('whatsapp').value.trim();
+      if (!nome || !whatsapp) {
+        alert('Por favor, preencha seu nome e WhatsApp.');
+        return;
+      }
+    }
     
+    if (currentStep === 2) {
+      const selected = document.querySelectorAll('.specialty-chip.selected');
+      if (selected.length === 0) {
+        alert('Por favor, selecione pelo menos uma especialidade.');
+        return;
+      }
+    }
+
+    if (currentStep === 3) {
+      const cpf = document.getElementById('cpf').value.trim();
+      if (cpf.length < 14) {
+        alert('Por favor, preencha um CPF válido.');
+        return;
+      }
+    }
+
+    if (currentStep < totalSteps) {
+      currentStep++;
+      updateUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 1) {
+      currentStep--;
+      updateUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function toggleSpecialty(element) {
+    element.classList.toggle('selected');
+  }
+
+  // Preview de Avatar
+  document.getElementById('avatarInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('avatarPreview');
+        preview.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Preview de Documento
+  document.getElementById('docInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const zone = document.getElementById('docZone');
+      zone.classList.add('uploaded');
+      zone.querySelector('h4').textContent = file.name;
+      zone.querySelector('p').textContent = 'Documento enviado com sucesso';
+    }
+  });
+
+  // Preview de Selfie
+  document.getElementById('selfieInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const zone = document.getElementById('selfieZone');
+      zone.classList.add('uploaded');
+      zone.querySelector('h4').textContent = file.name;
+      zone.querySelector('p').textContent = 'Selfie enviada com sucesso';
+    }
+  });
+
+  // Máscara de CPF
+  document.getElementById('cpf').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+    if (value.length > 9) {
+      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+    } else if (value.length > 6) {
+      value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    } else if (value.length > 3) {
+      value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    }
+    e.target.value = value;
+  });
+
+  // Máscara de WhatsApp
+  document.getElementById('whatsapp').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+    if (value.length > 10) {
+      value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (value.length > 6) {
+      value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+    } else if (value.length > 2) {
+      value = value.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+    }
+    e.target.value = value;
+  });
+
+  // Inicializa a interface
+  updateUI();
+</script>
+
+</body>
+</html>

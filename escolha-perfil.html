@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escolha seu perfil · OS Rápida</title>
+<title>Escolha seu perfil · Bizuxo</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
@@ -71,7 +71,9 @@
 
 <div class="phone">
   <div class="top">
-    <div class="brand">OS<span>Rápida</span></div>
+    <div class="brand">
+  Bizu<span id="tipoMarca">xo</span>
+</div>
     <h1>Como você vai usar a plataforma?</h1>
     <p>Escolha um perfil para continuar o cadastro.</p>
   </div>
@@ -104,21 +106,45 @@
 
 <script>
   let role = null;
-  const destinations = { cliente: 'cadastro-cliente.html', prestador: 'cadastro-prestador.html' };
 
-  function selectRole(card){
-    document.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+  const destinations = {
+    cliente: 'cadastro-cliente.html',
+    prestador: 'cadastro-prestador.html'
+  };
+
+  function selectRole(card) {
+
+    document.querySelectorAll('.choice').forEach(c =>
+      c.classList.remove('selected')
+    );
+
     card.classList.add('selected');
+
     role = card.dataset.role;
 
     const btn = document.getElementById('continueBtn');
-    btn.textContent = role === 'cliente' ? 'Continuar como cliente' : 'Continuar como prestador';
+    const tipoMarca = document.getElementById('tipoMarca');
+
+    // Texto do botão
+    btn.textContent =
+      role === 'cliente'
+        ? 'Continuar como cliente'
+        : 'Continuar como prestador';
+
     btn.dataset.role = role;
     btn.classList.add('enabled');
+
+    // Cor do Bizuxo
+    if (role === 'cliente') {
+      tipoMarca.classList.remove('prestador');
+    } else {
+      tipoMarca.classList.add('prestador');
+    }
   }
 
-  function goNext(){
-    if(!role) return;
+  function goNext() {
+    if (!role) return;
+
     window.location.href = destinations[role];
   }
 </script>

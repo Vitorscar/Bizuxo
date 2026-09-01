@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Criar conta de cliente · OS Rápida</title>
+<title>Criar conta de cliente · Bizuxo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -90,7 +90,7 @@
     <!-- Header -->
     <header>
         <div class="header-top">
-            <div class="brand">OS<span>Rápida</span></div>
+            <div class="brand">Bizu<span>xo</span></div>
             <a class="back" href="index.html">já tenho conta</a>
         </div>
         
@@ -282,7 +282,7 @@
             
             <div class="terms">
                 Ao continuar, você concorda com os 
-                <a href="termos.html" target="_blank">termos de uso</a> do OS Rápida
+                <a href="termos.html" target="_blank">termos de uso</a> do Bizuxo
             </div>
         </form>
 
@@ -296,6 +296,7 @@
 <!-- Scripts - ORDEM CORRETA -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-cliente.js"></script>
+<script src="js/utils.js"></script>
 <script src="js/auth.js"></script>
 
 <script>
@@ -557,11 +558,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Valida formulário
                 validarFormulario(dados);
-                
+                console.log('🔐 Auth:', Auth);
+console.log('📝 Auth.register:', Auth?.register);
+console.log('🌎 window.Auth:', window.Auth);
                 // Verifica se Auth está disponível
-                if (!window.Auth || typeof window.Auth.register !== 'function') {
-                    throw new Error('Módulo de autenticação não carregado.');
-                }
+               if (typeof Auth === 'undefined' || typeof Auth.register !== 'function') {
+    console.error('❌ Auth não disponível:', Auth);
+    throw new Error('Módulo de autenticação não carregado.');
+}
                 
                 // Chama o registro
                 const result = await window.Auth.register(dados);
